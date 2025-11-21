@@ -53,9 +53,6 @@ Users can:
 - Node.js
 - Express.js
 
-**Database** *(optional / planned)*
-- MongoDB / Firebase
-
 **Design**
 - Canva (UI/UX design)
 
@@ -76,5 +73,4 @@ Users can:
 
 ---
 
-## 📁 Project Structure
 
