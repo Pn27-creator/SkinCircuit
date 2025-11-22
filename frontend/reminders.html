@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SkinCircuit — Reminders</title>
+  <style>
+    :root{
+      --header-green:#3d7b70;
+      --accent:#3f8f7f;
+      --accent-strong:#2f6b60;
+      --bg:#eaf7f1;
+      --card:#ffffff;
+      --muted:#556b66;
+      --text:#073b36;
+      --radius:14px;
+      --shadow:0 10px 30px rgba(15,25,20,0.08);
+      --soft-shadow:0 6px 20px rgba(15,25,20,0.06);
+      --cheer:#8fe3c9;
+    }
+
+    html,body{
+      margin:0;
+      height:100%;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      background:linear-gradient(180deg,var(--bg),#e6f2ea 60%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    *{box-sizing:border-box;}
+
+    /* HEADER */
+    .site-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 20px;
+      background:var(--header-green);
+      color:#fff;
+      box-shadow:0 2px 0 rgba(0,0,0,0.06);
+      position:sticky;
+      top:0;
+      z-index:40;
+    }
+    .site-header .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .site-header .logo{
+      width:45px;
+      height:45px;
+      border-radius:10px;
+      object-fit:cover;
+      background:#fff;
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+    }
+    .brand{
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:0.2px;
+    }
+    .profile-btn{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      border:none;
+      background:#fff;
+      color:var(--header-green);
+      font-weight:800;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+    }
+
+    /* LAYOUT */
+    main.container{
+      max-width:980px;
+      margin:26px auto;
+      padding:18px;
+    }
+    .page-title{
+      font-size:28px;
+      margin:0 0 16px;
+      color:#072e28;
+      font-weight:800;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .small{font-size:13px;color:var(--muted);}
+    .muted{color:var(--muted);}
+
+    .btn{
+      border:none;
+      border-radius:10px;
+      padding:9px 16px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn.primary{
+      background:var(--accent-strong);
+      color:#fff;
+    }
+    .btn.secondary{
+      background:#fff;
+      color:var(--accent-strong);
+      border:1px solid rgba(0,0,0,0.06);
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px dashed rgba(0,0,0,0.12);
+      color:var(--muted);
+    }
+
+    .editor{
+      margin-top:12px;
+      background:linear-gradient(180deg,#fbfffc,#f7fffb);
+      padding:12px;
+      border-radius:12px;
+      border:1px solid rgba(7,59,54,0.06);
+    }
+    .field{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    label.switch{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-weight:700;
+      color:#114b44;
+    }
+    input[type="time"]{
+      padding:6px 10px;
+      border-radius:8px;
+      border:1px solid rgba(0,0,0,0.12);
+      font-weight:600;
+      font-family:inherit;
+    }
+
+    .reminder-row{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:18px;
+      align-items:flex-start;
+    }
+    @media (max-width:900px){
+      .reminder-row{grid-template-columns:1fr;}
+    }
+
+    .next-info{
+      margin-top:8px;
+      font-weight:700;
+      color:#073b36;
+    }
+    .countdown{
+      margin-top:6px;
+      font-size:22px;
+      font-weight:900;
+      color:#06403a;
+    }
+    .done-badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      background:linear-gradient(90deg,#8fe3c9,#6bd2b7);
+      color:#043b34;
+      font-weight:900;
+      box-shadow:0 6px 16px rgba(0,0,0,0.18);
+      font-size:13px;
+    }
+
+    .motivation-card{
+      background:linear-gradient(180deg,#ffffff,#f6fff9);
+      border-radius:16px;
+      padding:18px;
+      box-shadow:var(--soft-shadow);
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+    }
+    .motif{
+      width:120px;
+      height:120px;
+      border-radius:999px;
+      background:radial-gradient(circle at 30% 30%,#dff8f0 0%,#baf0de 35%,#8fe3c9 70%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 12px 30px rgba(47,107,96,0.12);
+    }
+    .tips{width:100%;display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+    .tip{display:flex;align-items:center;gap:8px;}
+    .tip .dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:var(--cheer);
+      box-shadow:0 4px 12px rgba(47,107,96,0.18);
+    }
+    .encourage{
+      font-weight:800;
+      color:#075e53;
+      font-size:14px;
+    }
+
+    input:focus,button:focus{
+      outline:3px solid rgba(63,143,127,0.2);
+      outline-offset:2px;
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="left">
+    <img src="templates/logo.jpg" class="logo" alt="SkinCircuit logo">
+    <div class="brand">SkinCircuit</div>
+  </div>
+  <button class="profile-btn" id="profileBtn" title="Go to profile">SN</button>
+</header>
+
+<main class="container">
+  <h1 class="page-title">Time to Skincare — Reminders</h1>
+
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:20px;font-weight:800;">Reminder</div>
+        <p class="small muted">Set morning & night reminders and get a countdown to your next skincare session.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn primary" id="timeBtn">Time to Skincare</button>
+        <button class="btn secondary" id="editBtn">Create / Edit reminders</button>
+      </div>
+    </div>
+
+    <div id="statusArea" style="margin-top:12px;" class="small muted">
+      No reminders yet. Click “Create / Edit reminders” to set them.
+    </div>
+
+    <div id="editor" class="editor" style="display:none;">
+      <div class="field">
+        <label class="switch">
+          <input type="checkbox" id="morningEnable">
+          <span>Morning</span>
+        </label>
+        <input type="time" id="morningTime" value="07:00" aria-label="Morning time">
+        <span class="small muted">Example: 07:30</span>
+      </div>
+
+      <div class="field">
+        <label class="switch">
+          <input type="checkbox" id="nightEnable">
+          <span>Night</span>
+        </label>
+        <input type="time" id="nightTime" value="21:00" aria-label="Night time">
+        <span class="small muted">Example: 21:00</span>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+        <button class="btn primary" id="saveRem">Save reminders</button>
+        <button class="btn secondary" id="cancelRem">Cancel</button>
+        <button class="btn ghost" id="clearRem">Clear all</button>
+      </div>
+
+      <p class="small muted" style="margin-top:8px;">
+        Reminders are saved on this device only (localStorage) and repeat every day.
+      </p>
+    </div>
+  </section>
+
+  <section class="reminder-row">
+    <div class="card">
+      <h2 style="margin:0 0 8px;">Your reminder summary</h2>
+      <div id="summaryArea" class="small muted">No reminders set yet.</div>
+      <div id="nextLine" class="next-info" style="display:none;"></div>
+      <div id="countdown" class="countdown" style="display:none;"></div>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;">
+        <button class="btn secondary" id="markDone">Mark done</button>
+        <button class="btn ghost" id="snoozeBtn">Snooze 10 min</button>
+        <div id="doneBadgeArea" style="margin-left:auto;"></div>
+      </div>
+    </div>
+
+    <aside class="motivation-card" aria-label="Skincare motivation">
+      <div class="motif">
+        <span style="font-size:32px;">✨</span>
+      </div>
+      <h3 style="margin:0;">Time for self-care</h3>
+      <p class="small muted" style="margin:0;">
+        A simple routine done consistently beats a complicated routine done rarely.
+      </p>
+
+      <div class="tips">
+        <div class="tip">
+          <span class="dot"></span>
+          <span class="small">Cleanse gently morning & night.</span>
+        </div>
+        <div class="tip">
+          <span class="dot"></span>
+          <span class="small">Use sunscreen every single morning.</span>
+        </div>
+        <div class="tip">
+          <span class="dot"></span>
+          <span class="small">Hydrate, sleep well and be kind to your skin.</span>
+        </div>
+      </div>
+
+      <button class="btn primary" id="startNow" style="margin-top:8px;">Start skincare now</button>
+      <div class="encourage">You’re doing great — tiny steps add up 💚</div>
+    </aside>
+  </section>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const STORAGE_KEY = "sc_reminders_v1";
+
+  // Header profile button → profile page
+  const profileBtn = document.getElementById("profileBtn");
+  if (profileBtn) {
+    profileBtn.addEventListener("click", () => {
+      window.location.href = "/profile";
+    });
+  }
+
+  // Elements
+  const timeBtn = document.getElementById("timeBtn");
+  const editBtn = document.getElementById("editBtn");
+  const editor = document.getElementById("editor");
+  const saveRem = document.getElementById("saveRem");
+  const cancelRem = document.getElementById("cancelRem");
+  const clearRem = document.getElementById("clearRem");
+
+  const morningEnable = document.getElementById("morningEnable");
+  const nightEnable = document.getElementById("nightEnable");
+  const morningTime = document.getElementById("morningTime");
+  const nightTime = document.getElementById("nightTime");
+
+  const statusArea = document.getElementById("statusArea");
+  const summaryArea = document.getElementById("summaryArea");
+  const nextLine = document.getElementById("nextLine");
+  const countdownEl = document.getElementById("countdown");
+  const markDone = document.getElementById("markDone");
+  const snoozeBtn = document.getElementById("snoozeBtn");
+  const startNow = document.getElementById("startNow");
+  const doneBadgeArea = document.getElementById("doneBadgeArea");
+
+  let countdownTimer = null;
+
+  function toast(msg, timeout = 1800){
+    let el = document.getElementById("toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "toast";
+      el.style.position = "fixed";
+      el.style.left = "50%";
+      el.style.transform = "translateX(-50%)";
+      el.style.bottom = "22px";
+      el.style.padding = "8px 16px";
+      el.style.borderRadius = "999px";
+      el.style.background = "linear-gradient(90deg,#8fe3c9,#6bd2b7)";
+      el.style.color = "#043b34";
+      el.style.fontWeight = "800";
+      el.style.boxShadow = "0 10px 30px rgba(0,0,0,0.25)";
+      el.style.zIndex = "9999";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = "1";
+    el.style.display = "block";
+    setTimeout(() => { el.style.opacity = "0"; }, timeout);
+    setTimeout(() => { el.style.display = "none"; }, timeout + 250);
+  }
+
+  function saveReminders(){
+    const data = {
+      morning: {
+        enabled: morningEnable.checked,
+        time: morningTime.value || "07:00"
+      },
+      night: {
+        enabled: nightEnable.checked,
+        time: nightTime.value || "21:00"
+      }
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return data;
+    } catch (e) {
+      console.warn("Save error", e);
+      toast("Could not save reminders (storage error)");
+      return null;
+    }
+  }
+
+  function loadReminders(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      console.warn("Load error", e);
+      return null;
+    }
+  }
+
+  function applyToUI(data){
+    if (!data) {
+      morningEnable.checked = false;
+      nightEnable.checked = false;
+      morningTime.value = "07:00";
+      nightTime.value = "21:00";
+      summaryArea.textContent = "No reminders set yet.";
+      nextLine.style.display = "none";
+      countdownEl.style.display = "none";
+      return;
+    }
+    morningEnable.checked = !!(data.morning && data.morning.enabled);
+    nightEnable.checked = !!(data.night && data.night.enabled);
+    morningTime.value = (data.morning && data.morning.time) || "07:00";
+    nightTime.value = (data.night && data.night.time) || "21:00";
+
+    const parts = [];
+    if (data.morning && data.morning.enabled) parts.push("Morning: " + data.morning.time);
+    if (data.night && data.night.enabled) parts.push("Night: " + data.night.time);
+    summaryArea.textContent = parts.length ? parts.join(" • ") : "No reminders set yet.";
+  }
+
+  function computeNextReminder(baseDate){
+    const data = loadReminders();
+    if (!data) return null;
+    const now = baseDate || new Date();
+    const options = [];
+
+    function push(label, enabled, timeStr){
+      if (!enabled || !timeStr) return;
+      const [hh, mm] = timeStr.split(":").map(n => parseInt(n, 10) || 0);
+      const d = new Date(now);
+      d.setHours(hh, mm, 0, 0);
+      if (d <= now) d.setDate(d.getDate() + 1);
+      options.push({ label, when: d });
+    }
+
+    push("Morning", data.morning && data.morning.enabled, data.morning && data.morning.time);
+    push("Night", data.night && data.night.enabled, data.night && data.night.time);
+
+    if (!options.length) return null;
+    options.sort((a,b) => a.when - b.when);
+    return options[0];
+  }
+
+  function formatDiff(ms){
+    if (ms <= 0) return "00:00:00";
+    const totalSec = Math.floor(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const pad = n => String(n).padStart(2,"0");
+    return pad(h) + ":" + pad(m) + ":" + pad(s);
+  }
+
+  function stopCountdown(){
+    if (countdownTimer){
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }
+
+  function startCountdown(target){
+    stopCountdown();
+    if (!target) return;
+
+    nextLine.style.display = "block";
+    nextLine.textContent =
+      target.label + " reminder — " +
+      target.when.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" }) +
+      " on " + target.when.toLocaleDateString();
+
+    function update(){
+      const now = new Date();
+      const diff = target.when - now;
+      if (diff <= 0){
+        countdownEl.style.display = "block";
+        countdownEl.textContent = "It’s time — " + target.label + " routine!";
+        stopCountdown();
+        showDoneBadge("Ready for your " + target.label.toLowerCase() + " routine ✨");
+        return;
+      }
+      countdownEl.style.display = "block";
+      countdownEl.textContent = formatDiff(diff);
+    }
+
+    update();
+    countdownTimer = setInterval(update, 1000);
+  }
+
+  function showDoneBadge(text){
+    doneBadgeArea.innerHTML = '<span class="done-badge">' + text + "</span>";
+    setTimeout(() => { doneBadgeArea.innerHTML = ""; }, 3500);
+  }
+
+  // Event wiring
+  editBtn.addEventListener("click", () => {
+    const show = editor.style.display !== "block";
+    editor.style.display = show ? "block" : "none";
+    if (show) editor.scrollIntoView({ behavior:"smooth" });
+  });
+
+  cancelRem.addEventListener("click", () => {
+    editor.style.display = "none";
+    applyToUI(loadReminders());
+  });
+
+  saveRem.addEventListener("click", () => {
+    const data = saveReminders();
+    if (data){
+      toast("Reminders saved");
+      applyToUI(data);
+      editor.style.display = "none";
+      stopCountdown();
+      countdownEl.style.display = "none";
+      nextLine.style.display = "none";
+    }
+  });
+
+  clearRem.addEventListener("click", () => {
+    if (!confirm("Clear all reminders for this device?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    applyToUI(null);
+    stopCountdown();
+    toast("Reminders cleared");
+  });
+
+  timeBtn.addEventListener("click", () => {
+    const next = computeNextReminder(new Date());
+    if (!next){
+      statusArea.textContent = "No reminders set. Click “Create / Edit reminders” to add them.";
+      countdownEl.style.display = "none";
+      nextLine.style.display = "none";
+      return;
+    }
+    statusArea.textContent =
+      "Next: " + next.label + " at " +
+      next.when.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" }) +
+      " on " + next.when.toLocaleDateString() + ".";
+    startCountdown(next);
+  });
+
+  markDone.addEventListener("click", () => {
+    stopCountdown();
+    countdownEl.style.display = "none";
+    nextLine.style.display = "none";
+    showDoneBadge("Nice work — routine completed 🎉");
+    toast("Session marked as done");
+  });
+
+  snoozeBtn.addEventListener("click", () => {
+    const current = computeNextReminder(new Date());
+    if (!current){
+      toast("No reminder to snooze");
+      return;
+    }
+    const snoozed = {
+      label: current.label + " (snoozed)",
+      when: new Date(Date.now() + 10 * 60 * 1000)
+    };
+    statusArea.textContent =
+      "Snoozed for 10 minutes. New time: " +
+      snoozed.when.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" }) + ".";
+    startCountdown(snoozed);
+  });
+
+  startNow.addEventListener("click", () => {
+    const next = computeNextReminder(new Date());
+    if (next){
+      statusArea.textContent =
+        "Next scheduled: " + next.label + " at " +
+        next.when.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" }) + ".";
+      startCountdown(next);
+    } else {
+      toast("Set a reminder first to use this button");
+    }
+  });
+
+  // Initial load
+  applyToUI(loadReminders());
+
+  window.addEventListener("beforeunload", () => stopCountdown());
+}); 
+ // -------- HEADER DROPDOWN LOGIC (safe) --------
+  const profileBtn   = $("#profileBtn");
+  const profileMenu  = $("#profileMenu");
+  const profileLink  = $("#profileLink");
+  const settingsLink = $("#settingsLink");
+  const logoutBtn    = $("#logoutBtn");
+
+  if (profileBtn && profileMenu){
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileMenu.classList.toggle("open");
+      profileMenu.setAttribute(
+        "aria-hidden",
+        profileMenu.classList.contains("open") ? "false" : "true"
+      );
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileMenu.contains(e.target) && e.target !== profileBtn){
+        profileMenu.classList.remove("open");
+        profileMenu.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  if (profileLink){
+    profileLink.addEventListener("click", () => {
+      window.location.href = "/profile";
+    });
+  }
+
+  if (settingsLink){
+    settingsLink.addEventListener("click", () => {
+      alert("Settings page coming soon!");
+    });
+  }
+
+  if (logoutBtn){
+    logoutBtn.addEventListener("click", () => {
+      try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+      window.location.href = "/";
+    });
+  }
+
+</script>
+</body>
+</html>
