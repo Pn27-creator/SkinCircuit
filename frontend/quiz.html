@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkinCircuit — Quick Quiz</title>
+
+<style>
+  :root{
+    --header-green:#3d7b70;
+    --accent:#3f8f7f;
+    --accent-strong:#2f6b60;
+    --bg:#eaf7f1;
+    --card:#ffffff;
+    --muted:#556b66;
+    --text:#073b36;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(15,25,20,0.08);
+    --soft-shadow:0 6px 20px rgba(15,25,20,0.06);
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:linear-gradient(180deg,var(--bg),#e6f2ea 60%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  /* -------- HEADER (one clean version) -------- */
+  .site-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 20px;
+    background:var(--header-green);
+    color:#fff;
+    box-shadow:0 2px 0 rgba(0,0,0,0.06);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+
+  .site-header .left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .site-header .logo{
+    width:45px;
+    height:45px;
+    border-radius:10px;
+    object-fit:cover;
+    background:#fff;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+
+  .brand{
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:0.2px;
+  }
+
+  .profile-wrap{
+    position:relative;
+  }
+
+  .profile-btn{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:none;
+    background:#fff;
+    color:#3d7b70;
+    font-weight:900;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+
+  .profile-menu{
+    position:absolute;
+    right:0;
+    top:52px;
+    width:220px;
+    background:#fff;
+    color:#073b36;
+    border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.25);
+    padding:10px 12px;
+    display:none;
+    z-index:100;
+  }
+
+  .profile-menu.open{
+    display:block;
+  }
+
+  .profile-menu .meta .name{
+    font-weight:800;
+  }
+  .profile-menu .meta .email{
+    font-size:12px;
+    color:#556b66;
+  }
+
+  .menu-item{
+    width:100%;
+    text-align:left;
+    padding:6px 0;
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .menu-item:hover{ color:#2f6b60; }
+  .logout-item{ color:#d9534f; }
+
+  /* -------- PAGE LAYOUT -------- */
+  main.container{max-width:980px;margin:26px auto;padding:18px;}
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  h1.title{margin:0 0 8px;font-size:28px;}
+  p.lead{margin:0;color:var(--muted);font-size:14px;}
+
+  form.quiz{margin-top:14px;display:grid;gap:14px;}
+  .section{
+    background:linear-gradient(180deg,#fcfffc,#f7fffb);
+    border-radius:12px;
+    padding:12px;
+    border:1px solid rgba(7,59,54,0.04);
+  }
+  .q-title{font-weight:800;color:#114b44;margin-bottom:10px;}
+  .options{display:flex;flex-wrap:wrap;gap:10px;}
+  label.option,label.check{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 12px;
+    border-radius:10px;
+    background:#f7fbfa;
+    border:1px solid rgba(10,10,10,0.03);
+    cursor:pointer;
+    user-select:none;
+    transition:transform .08s ease,box-shadow .12s ease;
+  }
+  label.option:hover,label.check:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 30px rgba(47,107,96,0.06);
+  }
+  input[type="radio"],input[type="checkbox"]{
+    width:18px;
+    height:18px;
+    accent-color:var(--accent);
+  }
+
+  .actions{display:flex;gap:12px;align-items:center;margin-top:6px;}
+  .btn{
+    background:var(--accent-strong);
+    color:white;
+    padding:10px 16px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+  }
+  .btn.secondary{
+    background:#fff;
+    color:var(--accent-strong);
+    border:1px solid rgba(0,0,0,0.06);
+  }
+
+  .small{font-size:13px;color:var(--muted);}
+
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:18px;
+    margin-top:18px;
+    align-items:start;
+  }
+  .product-card{
+    background:var(--card);
+    padding:20px;
+    border-radius:18px;
+    box-shadow:var(--soft-shadow);
+  }
+  .robot-card{
+    background:linear-gradient(180deg,#f9fffc,#f2fff8);
+    border-radius:18px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow:var(--soft-shadow);
+    position:relative;
+    overflow:visible;
+  }
+  .robot-card img{
+    width:150px;
+    height:auto;
+    object-fit:contain;
+    border-radius:12px;
+    background:white;
+    box-shadow:0 10px 30px rgba(8,24,20,0.12);
+  }
+
+  .result{
+    display:none;
+    margin-top:12px;
+    padding:14px;
+    border-radius:12px;
+    background:linear-gradient(180deg,#f9fffb,#f2fff7);
+    border:1px solid rgba(11,70,62,0.05);
+  }
+
+  .chat-bubble{
+    background:white;
+    padding:10px 14px;
+    border-radius:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.10);
+    position:absolute;
+    top:8px;
+    right:-12px;
+    max-width:180px;
+    font-size:14px;
+    color:#06403a;
+    font-weight:600;
+  }
+  .chat-bubble::after{
+    content:'';
+    position:absolute;
+    left:-10px;
+    top:18px;
+    width:0;height:0;
+    border-left:10px solid white;
+    border-top:10px solid transparent;
+    border-bottom:10px solid transparent;
+  }
+
+  @media (max-width:900px){
+    .two-col{grid-template-columns:1fr;}
+    .robot-card img{width:140px;}
+    .chat-bubble{right:6px;top:-8px;}
+  }
+
+  .img-fallback{
+    width:46px;
+    height:46px;
+    border-radius:10px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#2b6b62;
+    font-weight:800;
+    border:1px solid #e5efe9;
+    font-size:12px;
+  }
+
+  #saveNotice{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    padding:10px 14px;
+    background:var(--accent-strong);
+    color:white;
+    border-radius:10px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.18);
+    z-index:9999;
+    display:none;
+    opacity:0;
+    transition:opacity .25s ease;
+  }
+</style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="left">
+      <img id="siteLogo" src="/templates/logo.jpg" class="logo" alt="SkinCircuit Logo">
+      <span class="brand">SkinCircuit</span>
+    </div>
+
+    <div class="profile-wrap">
+      <button class="profile-btn" id="profileBtn">SN</button>
+
+      <div id="profileMenu" class="profile-menu" aria-hidden="true">
+        <div class="meta">
+          <div class="name">SkinCircuit User</div>
+          <div class="email">user@skincircuit.com</div>
+        </div>
+        <hr>
+        <button class="menu-item" id="profileLink">Profile</button>
+        <button class="menu-item" id="settingsLink">Settings</button>
+        <hr>
+        <button class="menu-item logout-item" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container" role="main">
+    <div class="card">
+      <h1 class="title">Quick Skin Quiz</h1>
+      <p class="lead">Answer the short quiz so we can recommend product categories and a simple routine. Results are saved locally.</p>
+
+      <!-- Quiz form -->
+      <form id="quizForm" class="quiz" autocomplete="off" novalidate>
+        <!-- 1. Skin type -->
+        <div class="section" aria-labelledby="lbl-skin">
+          <div id="lbl-skin" class="q-title">1. Skin type <span class="small" style="margin-left:8px">(required)</span></div>
+          <div class="options" role="radiogroup" aria-labelledby="lbl-skin">
+            <label class="option"><input type="radio" name="skinType" value="oily" required><span>Oily skin</span></label>
+            <label class="option"><input type="radio" name="skinType" value="dry"><span>Dry skin</span></label>
+            <label class="option"><input type="radio" name="skinType" value="sensitive"><span>Sensitive skin</span></label>
+            <label class="option"><input type="radio" name="skinType" value="combination"><span>Combination skin</span></label>
+          </div>
+        </div>
+
+        <!-- 2. Acne level -->
+        <div class="section" aria-labelledby="lbl-acne">
+          <div id="lbl-acne" class="q-title">2. Acne level <span class="small" style="margin-left:8px">(required)</span></div>
+          <div class="options" role="radiogroup" aria-labelledby="lbl-acne">
+            <label class="option"><input type="radio" name="acne" value="mild" required><span>Mild</span></label>
+            <label class="option"><input type="radio" name="acne" value="moderate"><span>Moderate</span></label>
+            <label class="option"><input type="radio" name="acne" value="severe"><span>Severe</span></label>
+            <label class="option"><input type="radio" name="acne" value="none"><span>No acne</span></label>
+          </div>
+        </div>
+
+        <!-- 3. Gender -->
+        <div class="section" aria-labelledby="lbl-gender">
+          <div id="lbl-gender" class="q-title">3. Gender <span class="small" style="margin-left:8px">(required)</span></div>
+          <div class="options" role="radiogroup" aria-labelledby="lbl-gender">
+            <label class="option"><input type="radio" name="gender" value="male" required><span>Male</span></label>
+            <label class="option"><input type="radio" name="gender" value="female"><span>Female</span></label>
+          </div>
+        </div>
+
+        <!-- 4. Age -->
+        <div class="section" aria-labelledby="lbl-age">
+          <div id="lbl-age" class="q-title">4. Age <span class="small" style="margin-left:8px">(required)</span></div>
+          <div class="options" role="radiogroup" aria-labelledby="lbl-age">
+            <label class="option"><input type="radio" name="age" value="under20" required><span>Under 20</span></label>
+            <label class="option"><input type="radio" name="age" value="20-30"><span>20–30</span></label>
+            <label class="option"><input type="radio" name="age" value="30-40"><span>30–40</span></label>
+            <label class="option"><input type="radio" name="age" value="above40"><span>Above 40</span></label>
+          </div>
+        </div>
+
+        <!-- 5. Products used regularly -->
+        <div class="section" aria-labelledby="lbl-used">
+          <div id="lbl-used" class="q-title">5. What products do you use regularly?</div>
+          <div class="options" role="group" aria-labelledby="lbl-used">
+            <label class="check"><input type="checkbox" name="used" value="cleanser"><span>Cleanser</span></label>
+            <label class="check"><input type="checkbox" name="used" value="sunscreen"><span>Sunscreen</span></label>
+            <label class="check"><input type="checkbox" name="used" value="serum"><span>Serum</span></label>
+            <label class="check"><input type="checkbox" name="used" value="eyecream"><span>Eye cream</span></label>
+            <label class="check"><input type="checkbox" name="used" value="moisturizer"><span>Moisturizer</span></label>
+            <label class="check"><input type="checkbox" name="used" value="scrub"><span>Scrub</span></label>
+          </div>
+        </div>
+
+        <!-- 6. Products you want recommended -->
+        <div class="section" aria-labelledby="lbl-want">
+          <div id="lbl-want" class="q-title">6. Products you want us to recommend</div>
+          <div class="options" role="group" aria-labelledby="lbl-want">
+            <label class="check"><input type="checkbox" name="want" value="cleanser"><span>Cleanser</span></label>
+            <label class="check"><input type="checkbox" name="want" value="toner"><span>Toner</span></label>
+            <label class="check"><input type="checkbox" name="want" value="serum"><span>Serum</span></label>
+            <label class="check"><input type="checkbox" name="want" value="moisturizer"><span>Moisturizer</span></label>
+            <label class="check"><input type="checkbox" name="want" value="eyecream"><span>Eye cream</span></label>
+            <label class="check"><input type="checkbox" name="want" value="sunscreen"><span>Sunscreen</span></label>
+            <label class="check"><input type="checkbox" name="want" value="scrub"><span>Scrub</span></label>
+            <label class="check"><input type="checkbox" name="want" value="facemask"><span>Face mask</span></label>
+          </div>
+        </div>
+
+        <!-- actions -->
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn">Get Recommendations</button>
+          <button type="button" class="btn secondary" id="resetBtn">Reset</button>
+          <div style="margin-left:auto" class="small">Answers saved to your browser</div>
+        </div>
+      </form>
+
+      <!-- results + chatbot -->
+      <div class="two-col">
+        <div class="product-card card">
+          <h3 style="margin:0 0 8px">Recommendations</h3>
+          <div id="result" class="result" aria-live="polite"></div>
+        </div>
+
+        
+            
+          </div>
+        
+  </main>
+
+  <div id="saveNotice" role="status" aria-live="polite"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const API_BASE = "http://localhost:5000";
+  const SAVE_KEY = "sc_quiz_v1";
+
+  const $  = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+  const getCheckedValues = (name) =>
+    $$(`input[name="${name}"]:checked`).map((i) => i.value);
+
+  const getRadioValue = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  };
+
+  function capitalize(s){
+    if (!s) return "";
+    return s.replace(/\b\w/g, c => c.toUpperCase()).replace("-", "–");
+  }
+
+  function showSaveNotice(msg = "", timeout = 3000){
+    const el = $("#saveNotice");
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = "block";
+    el.style.opacity = "1";
+    setTimeout(() => { el.style.opacity = "0"; }, timeout);
+    setTimeout(() => { el.style.display = "none"; }, timeout + 250);
+  }
+
+  function saveAnswers(answers){
+    const payload = { answers, savedAt: new Date().toISOString() };
+    let raw;
+    try { raw = JSON.stringify(payload); }
+    catch(err){
+      console.warn("JSON stringify failed:", err);
+      showSaveNotice("Could not save (data error)");
+      return false;
+    }
+
+    try {
+      localStorage.setItem(SAVE_KEY, raw);
+      showSaveNotice("Saved locally");
+      return true;
+    } catch(lsErr){
+      console.warn("localStorage failed:", lsErr);
+      try{
+        sessionStorage.setItem(SAVE_KEY, raw);
+        showSaveNotice("Saved in this session");
+        return true;
+      } catch(sessErr){
+        console.warn("sessionStorage failed:", sessErr);
+        showSaveNotice("Could not save locally");
+        return false;
+      }
+    }
+  }
+
+  function loadAnswers(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY) || sessionStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed.answers || null;
+    } catch(err){
+      console.warn("Load failed:", err);
+      return null;
+    }
+  }
+
+  function buildRecommendationsLocal(answers){
+    const rec = { title:"", lines:[] };
+    rec.title = `Suggestions for ${capitalize(answers.skinType || "your")} skin`;
+
+    switch(answers.skinType){
+      case "oily":
+        rec.lines.push("Use a gentle salicylic-acid cleanser to manage oil and clogged pores.");
+        rec.lines.push("Choose lightweight, non-comedogenic gel moisturizers and avoid heavy oils.");
+        break;
+      case "dry":
+        rec.lines.push("Use creamy, hydrating cleansers and moisturizers with ceramides or glycerin.");
+        rec.lines.push("Avoid harsh foaming cleansers and alcohol-heavy toners.");
+        break;
+      case "sensitive":
+        rec.lines.push("Stick to fragrance-free, minimal-ingredient products and always patch-test.");
+        rec.lines.push("Introduce actives (acids, retinoids) very slowly, if at all.");
+        break;
+      case "combination":
+        rec.lines.push("Balance oil-control on the T-zone and use lighter hydrators on dry areas.");
+        break;
+      default:
+        rec.lines.push("Keep your routine simple and consistent while you learn how your skin behaves.");
+    }
+
+    if (answers.acne === "severe"){
+      rec.lines.unshift("Severe acne — please consult a dermatologist for prescription options.");
+    } else if (answers.acne === "moderate"){
+      rec.lines.push("Consider spot treatments (benzoyl peroxide) and introduce retinoids slowly.");
+    } else if (answers.acne === "mild"){
+      rec.lines.push("Try salicylic-acid products a few times weekly and avoid over-washing.");
+    }
+
+    if (answers.age === "under20"){
+      rec.lines.push("Focus on a gentle routine plus sunscreen; avoid strong actives without guidance.");
+    } else if (answers.age === "20-30"){
+      rec.lines.push("Consider introducing a gentle retinoid gradually at night.");
+    } else if (answers.age === "30-40"){
+      rec.lines.push("Add antioxidants (like vitamin C) in the morning to boost protection and brightness.");
+    } else if (answers.age === "above40"){
+      rec.lines.push("Look for peptides, niacinamide and richer moisturizers for barrier and firmness support.");
+    }
+
+    if (!answers.used.includes("sunscreen")){
+      rec.lines.push("Start using a broad-spectrum SPF 30+ every morning — this is the #1 priority.");
+    }
+
+    if (answers.want.length){
+      rec.lines.push("You requested recommendations for: " +
+        answers.want.map(capitalize).join(", ") + ".");
+    } else {
+      rec.lines.push("Core recommended categories: cleanser, moisturizer, sunscreen and a simple serum.");
+    }
+
+    return rec;
+  }
+
+  function renderResult(rec, answers){
+    const out = $("#result");
+    if (!out) return;
+    out.style.display = "block";
+    out.innerHTML = "";
+
+    const h = document.createElement("h3");
+    h.textContent = rec.title;
+    out.appendChild(h);
+
+    const meta = document.createElement("div");
+    meta.className = "small";
+    meta.style.marginBottom = "8px";
+    meta.textContent = `Age: ${answers.age || "—"} • Acne: ${capitalize(
+      answers.acne || "—"
+    )} • Gender: ${capitalize(answers.gender || "—")}`;
+    out.appendChild(meta);
+
+    const ul = document.createElement("ul");
+    rec.lines.forEach(line => {
+      const li = document.createElement("li");
+      li.textContent = line;
+      ul.appendChild(li);
+    });
+    out.appendChild(ul);
+
+    const used = document.createElement("div");
+    used.className = "small";
+    used.style.marginTop = "10px";
+    used.textContent =
+      "You currently use: " +
+      (answers.used.length ? answers.used.map(capitalize).join(", ") : "None");
+    out.appendChild(used);
+  }
+
+  const form = $("#quizForm");
+  if (!form) return;
+
+  form.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+
+    const skinType = getRadioValue("skinType");
+    const acne     = getRadioValue("acne");
+    const gender   = getRadioValue("gender");
+    const age      = getRadioValue("age");
+    const used     = getCheckedValues("used");
+    const want     = getCheckedValues("want");
+
+    if (!skinType || !acne || !gender || !age){
+      alert("Please answer required fields: skin type, acne level, gender and age.");
+      return;
+    }
+
+    const answers = { skinType, acne, gender, age, used, want };
+    saveAnswers(answers);
+
+    fetch(`${API_BASE}/api/quiz/analyze`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify(answers),
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.recommendations){
+        renderResult(data.recommendations, answers);
+      } else {
+        renderResult(buildRecommendationsLocal(answers), answers);
+      }
+      setTimeout(() => {
+        $("#result").scrollIntoView({ behavior:"smooth" });
+      }, 80);
+    })
+    .catch(err => {
+      console.error("Backend quiz error:", err);
+      renderResult(buildRecommendationsLocal(answers), answers);
+    });
+  });
+
+  const resetBtn = $("#resetBtn");
+  if (resetBtn){
+    resetBtn.addEventListener("click", () => {
+      form.reset();
+      const result = $("#result");
+      if (result) result.style.display = "none";
+      try{
+        localStorage.removeItem(SAVE_KEY);
+        sessionStorage.removeItem(SAVE_KEY);
+      } catch(e){}
+      showSaveNotice("Cleared local answers.", 1200);
+    });
+  }
+
+  function setRadio(name, value){
+    const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+    if (el) el.checked = true;
+  }
+  function setCheck(name, value){
+    const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+    if (el) el.checked = true;
+  }
+
+  (function initFromStorage(){
+    const stored = loadAnswers();
+    if (!stored) return;
+
+    if (stored.skinType) setRadio("skinType", stored.skinType);
+    if (stored.acne)     setRadio("acne", stored.acne);
+    if (stored.gender)   setRadio("gender", stored.gender);
+    if (stored.age)      setRadio("age", stored.age);
+    if (Array.isArray(stored.used)) stored.used.forEach(v => setCheck("used", v));
+    if (Array.isArray(stored.want)) stored.want.forEach(v => setCheck("want", v));
+
+    if (stored.skinType && stored.acne && stored.gender && stored.age){
+      const rec = buildRecommendationsLocal(stored);
+      renderResult(rec, stored);
+    }
+  })();
+
+  // logo fallback
+  const logo = $("#siteLogo");
+  if (logo){
+    logo.addEventListener("error", () => {
+      console.warn("Logo failed to load:", logo.src);
+      logo.style.display = "none";
+      const f = document.createElement("div");
+      f.className = "img-fallback";
+      f.textContent = "SC";
+      logo.parentNode.insertBefore(f, logo.nextSibling);
+    });
+  }
+
+  
+
+  // -------- HEADER DROPDOWN LOGIC (safe) --------
+  const profileBtn   = $("#profileBtn");
+  const profileMenu  = $("#profileMenu");
+  const profileLink  = $("#profileLink");
+  const settingsLink = $("#settingsLink");
+  const logoutBtn    = $("#logoutBtn");
+
+  if (profileBtn && profileMenu){
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileMenu.classList.toggle("open");
+      profileMenu.setAttribute(
+        "aria-hidden",
+        profileMenu.classList.contains("open") ? "false" : "true"
+      );
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileMenu.contains(e.target) && e.target !== profileBtn){
+        profileMenu.classList.remove("open");
+        profileMenu.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  if (profileLink){
+    profileLink.addEventListener("click", () => {
+      window.location.href = "/profile";
+    });
+  }
+
+  if (settingsLink){
+    settingsLink.addEventListener("click", () => {
+      alert("Settings page coming soon!");
+    });
+  }
+
+  if (logoutBtn){
+    logoutBtn.addEventListener("click", () => {
+      try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+      window.location.href = "/";
+    });
+  }
+});
+</script>
+
+</body>
+</html>
