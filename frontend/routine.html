@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkinCircuit — Routine Preview</title>
+
+<style>
+  :root{
+    --header-green:#3d7b70;
+    --accent:#3f8f7f;
+    --accent-strong:#2f6b60;
+    --bg:#eaf7f1;
+    --card:#ffffff;
+    --muted:#556b66;
+    --text:#073b36;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(15,25,20,0.08);
+    --soft-shadow:0 10px 30px rgba(15,25,20,0.06);
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:linear-gradient(180deg,var(--bg),#e6f2ea 60%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  *{box-sizing:border-box}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- HEADER (same as quiz.html) ---------- */
+  .site-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 20px;
+    background:#3d7b70;
+    color:#fff;
+    box-shadow:0 2px 0 rgba(0,0,0,0.06);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .site-header .left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .site-header .logo{
+    width:45px;
+    height:45px;
+    border-radius:10px;
+    object-fit:cover;
+    background:#fff;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+  .brand{
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:0.2px;
+  }
+
+  .profile-wrap{
+    position:relative;
+  }
+  .profile-btn{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:none;
+    background:#fff;
+    color:#3d7b70;
+    font-weight:900;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+
+  .profile-menu{
+    position:absolute;
+    right:0;
+    top:52px;
+    width:220px;
+    background:#fff;
+    color:#073b36;
+    border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.25);
+    padding:10px 12px;
+    display:none;
+    z-index:100;
+  }
+  .profile-menu.open{ display:block; }
+  .profile-menu .meta .name{ font-weight:800; }
+  .profile-menu .meta .email{ font-size:12px;color:#556b66; }
+  .menu-item{
+    width:100%;
+    text-align:left;
+    padding:6px 0;
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .menu-item:hover{ color:#2f6b60; }
+  .logout-item{ color:#d9534f; }
+
+  /* ---------- PAGE LAYOUT ---------- */
+  main.container{max-width:1100px;margin:28px auto;padding:18px;}
+
+  .page-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  h1.page-title{margin:0;font-size:28px;color:#072e28;}
+  p.lead{margin:0;color:var(--muted);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:980px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .section-title{font-weight:800;color:#114b44;margin-bottom:8px;}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  label.option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px;
+    border-radius:12px;
+    background:#fbfffb;
+    border:1px solid rgba(10,10,10,0.03);
+    cursor:pointer;
+    transition:transform .12s, box-shadow .12s;
+  }
+  label.option:hover{
+    transform:translateY(-4px);
+    box-shadow:0 16px 40px rgba(47,107,96,0.06);
+  }
+  input[type="checkbox"]{
+    width:18px;
+    height:18px;
+    accent-color:var(--accent);
+  }
+  .hint{font-size:13px;color:var(--muted);margin-top:6px;}
+
+  .actions{display:flex;gap:10px;margin-top:12px;}
+  .btn{
+    background:var(--accent-strong);
+    color:white;
+    padding:10px 14px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+  }
+  .btn.secondary{
+    background:#fff;
+    color:var(--accent-strong);
+    border:1px solid rgba(0,0,0,0.06);
+  }
+
+  .results-wrap{display:flex;flex-direction:column;gap:12px;}
+  .summary{
+    background:linear-gradient(180deg,#f9fffb,#f2fff7);
+    padding:14px;
+    border-radius:12px;
+    border:1px solid rgba(11,70,62,0.05);
+    box-shadow:var(--soft-shadow);
+  }
+  .summary h3{margin:0 0 8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .chip{
+    background:#fff;
+    border-radius:999px;
+    padding:8px 12px;
+    border:1px solid rgba(10,10,10,0.04);
+    font-weight:700;
+    color:var(--accent-strong);
+    box-shadow:0 8px 20px rgba(10,60,54,0.03);
+    cursor:pointer;
+  }
+
+  .product-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:12px;
+  }
+  .prod-card{
+    background:white;
+    border-radius:12px;
+    padding:12px;
+    border:1px solid rgba(10,10,10,0.04);
+    box-shadow:0 10px 30px rgba(6,40,34,0.03);
+    transform:translateY(8px);
+    opacity:0;
+    animation:fadeUp .42s forwards;
+  }
+  .prod-card:hover{
+    transform:translateY(0);
+    box-shadow:0 20px 45px rgba(6,40,34,0.06);
+  }
+  .prod-card h4{margin:0 0 6px;color:#073b36;}
+  .freq{font-weight:800;color:#0f6a5d;}
+  .usage{font-size:13px;color:var(--muted);margin-top:8px;}
+  .steps{margin-top:8px;padding-left:18px;font-size:14px;color:#073b36;}
+
+  @keyframes fadeUp{to{transform:translateY(0);opacity:1;}}
+
+  .tip-box{
+    background:linear-gradient(180deg,#ffffff,#f7fff9);
+    padding:12px;
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.04);
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .tip-emoji{font-size:22px;}
+  .tip-text{font-size:14px;color:var(--muted);}
+
+  .pulse{
+    display:inline-block;
+    border-radius:999px;
+    padding:10px 14px;
+    background:linear-gradient(90deg,#8fe3c9,#6bd2b7);
+    color:#023b33;
+    font-weight:900;
+    box-shadow:0 8px 30px rgba(107,210,190,0.12);
+    animation:softPulse 2.6s infinite;
+  }
+  @keyframes softPulse{
+    0%{ transform:scale(1); box-shadow:0 8px 30px rgba(107,210,190,0.08);}
+    50%{ transform:scale(1.03); box-shadow:0 18px 40px rgba(107,210,190,0.16);}
+    100%{ transform:scale(1); box-shadow:0 8px 30px rgba(107,210,190,0.08);}
+  }
+
+  input:focus,button:focus{
+    outline:3px solid rgba(63,143,127,0.12);
+    outline-offset:3px;
+  }
+</style>
+</head>
+
+<body>
+  <!-- HEADER (same structure as quiz.html) -->
+  <header class="site-header" role="banner">
+    <div class="left">
+      <img id="siteLogo" class="logo" src="/templates/logo.jpg" alt="SkinCircuit logo">
+      <div class="brand">SkinCircuit</div>
+    </div>
+
+    <div class="profile-wrap">
+      <button class="profile-btn" id="profileBtn" aria-label="Open profile">SN</button>
+
+      <div id="profileMenu" class="profile-menu" aria-hidden="true">
+        <div class="meta">
+          <div class="name">SkinCircuit User</div>
+          <div class="email">user@skincircuit.com</div>
+        </div>
+        <hr>
+        <button class="menu-item" id="profileLink">Profile</button>
+        <button class="menu-item" id="settingsLink">Settings</button>
+        <hr>
+        <button class="menu-item logout-item" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="container" role="main">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Routine Preview</h1>
+        <p class="lead">
+          Tell us which products you use and get a friendly, actionable routine — morning &amp; night guidance, frequencies, and quick steps.
+        </p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pulse">Keep your glow ✨</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: SELECTOR -->
+      <aside class="card" aria-label="Select products">
+        <div class="section-title">Which products do you use?</div>
+        <form id="productForm">
+          <div class="options">
+            <label class="option">
+              <input type="checkbox" name="prod" value="cleanser">
+              <div><strong>Cleanser</strong><div class="hint">Daily: remove dirt &amp; oil</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="toner">
+              <div><strong>Toner</strong><div class="hint">Balances pH, prep skin</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="serum">
+              <div><strong>Serum</strong><div class="hint">Targeted actives</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="moisturizer">
+              <div><strong>Moisturizer</strong><div class="hint">Lock in hydration</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="scrub">
+              <div><strong>Scrub</strong><div class="hint">Exfoliate (sparingly)</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="sunscreen">
+              <div><strong>Sunscreen</strong><div class="hint">Protect from UV</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="eyecream">
+              <div><strong>Eye cream</strong><div class="hint">Treat delicate eye area</div></div>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="prod" value="facemask">
+              <div><strong>Face mask</strong><div class="hint">Deep treatment</div></div>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="previewBtn" class="btn">Preview Routine</button>
+            <button type="button" id="clearBtn" class="btn secondary">Clear</button>
+          </div>
+
+          <div class="hint" style="margin-top:8px">
+            Tip: Select everything you currently use to get the most accurate routine preview.
+          </div>
+        </form>
+      </aside>
+
+      <!-- RIGHT: RESULTS -->
+      <section class="results-wrap">
+        <div class="summary card" id="summaryCard" aria-live="polite">
+          <h3>Your Current Products</h3>
+          <div id="summaryText" class="small muted">
+            No products selected yet. Click "Preview Routine" to see a suggested routine.
+          </div>
+          <div class="chips" id="chips"></div>
+        </div>
+
+        <div class="card" id="guidanceCard" style="display:none">
+          <h3 style="margin:0 0 8px">How to use — Morning &amp; Night</h3>
+          <div id="guidanceList" class="product-list"></div>
+        </div>
+
+        <div class="tip-box" style="margin-top:10px">
+          <div class="tip-emoji">💡</div>
+          <div class="tip-text">
+            Quick tip: Keep your routine simple. Consistency beats overcomplication — focus on cleansing, protection (sunscreen), and a targeted serum.
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const SAVE_KEY = "sc_routine_v1";
+
+  const PRODUCT_INFO = {
+    cleanser: {
+      name: "Cleanser",
+      freq: "Daily — morning & night",
+      when: "Morning & Night",
+      why: "Removes dirt, oil, and sunscreen; the essential first step.",
+      steps: [
+        "Wet face with lukewarm water.",
+        "Apply a pea-sized amount and massage gently for 30–60 seconds.",
+        "Rinse thoroughly and pat dry with a clean towel."
+      ]
+    },
+    toner: {
+      name: "Toner",
+      freq: "Daily — after cleansing",
+      when: "Morning & Night (optional)",
+      why: "Balances skin pH and preps for actives/moisturizer.",
+      steps: [
+        "Apply to cotton pad or palms.",
+        "Gently press onto skin; do not rub harshly.",
+        "Follow with serum or moisturizer."
+      ]
+    },
+    serum: {
+      name: "Serum",
+      freq: "Daily — typically once a day",
+      when: "Usually Night for actives; Morning if antioxidant (e.g., vitamin C)",
+      why: "Concentrated ingredients targeting concerns (brightening, acne, hydration).",
+      steps: [
+        "After toner, apply 2–3 drops onto face.",
+        "Gently press into skin and allow absorption for ~30 seconds.",
+        "Follow with moisturizer and sunscreen in AM."
+      ]
+    },
+    moisturizer: {
+      name: "Moisturizer",
+      freq: "Daily — morning & night",
+      when: "Morning & Night",
+      why: "Hydrates and strengthens skin barrier; locks in treatments.",
+      steps: [
+        "Use appropriate amount (pea-to-nickel sized).",
+        "Apply over face and neck, massaging gently.",
+        "If oily, use gel-based; if dry, choose richer cream."
+      ]
+    },
+    scrub: {
+      name: "Scrub / Exfoliant",
+      freq: "1–2 times per week",
+      when: "Night is preferred",
+      why: "Removes dead skin cells and improves texture — do not over-exfoliate.",
+      steps: [
+        "Use on damp skin after cleansing.",
+        "Gently massage with light pressure for ~30 seconds.",
+        "Rinse off and follow with moisturizer."
+      ]
+    },
+    sunscreen: {
+      name: "Sunscreen",
+      freq: "Daily — every morning",
+      when: "Morning (essential)",
+      why: "Protects from UVA/UVB; prevents premature aging and pigmentation.",
+      steps: [
+        "Apply as the last step in AM routine.",
+        "Use a generous amount (about a teaspoon for face).",
+        "Reapply every 2 hours if in direct sun."
+      ]
+    },
+    eyecream: {
+      name: "Eye Cream",
+      freq: "Daily — morning & night (optional)",
+      when: "Morning & Night",
+      why: "Hydrates delicate eye area and targets dark circles/puffiness.",
+      steps: [
+        "Use a tiny amount (grain-of-rice sized).",
+        "Gently pat around orbital bone using ring finger.",
+        "Avoid pulling or rubbing the thin skin."
+      ]
+    },
+    facemask: {
+      name: "Face Mask",
+      freq: "1–2 times per week",
+      when: "Night is common (or whenever you have time)",
+      why: "Intensive treatment for hydration, detox, or brightening.",
+      steps: [
+        "Apply on cleansed skin as directed.",
+        "Leave for recommended time, then rinse or wipe off.",
+        "Follow with serum/moisturizer."
+      ]
+    }
+  };
+
+  const previewBtn   = document.getElementById("previewBtn");
+  const clearBtn     = document.getElementById("clearBtn");
+  const productForm  = document.getElementById("productForm");
+  const summaryText  = document.getElementById("summaryText");
+  const chips        = document.getElementById("chips");
+  const guidanceCard = document.getElementById("guidanceCard");
+  const guidanceList = document.getElementById("guidanceList");
+
+  function qAll(sel){ return Array.from(document.querySelectorAll(sel)); }
+  function getSelectedProducts(){
+    return qAll('input[name="prod"]:checked').map(n => n.value);
+  }
+
+  function saveSelected(selected){
+    try{
+      const payload = { selected, savedAt: new Date().toISOString() };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+      showToast("Routine saved locally");
+    } catch(err){
+      console.warn("saveSelected failed:", err);
+    }
+  }
+
+  function loadSelected(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed.selected || null;
+    } catch(err){
+      return null;
+    }
+  }
+
+  function clearSelection(){
+    qAll('input[name="prod"]').forEach(inp => inp.checked = false);
+    summaryText.textContent =
+      'No products selected yet. Click "Preview Routine" to see a suggested routine.';
+    chips.innerHTML = "";
+    guidanceCard.style.display = "none";
+    localStorage.removeItem(SAVE_KEY);
+  }
+
+  function showToast(msg, timeout = 1600){
+    let el = document.getElementById("sc_toast");
+    if (!el){
+      el = document.createElement("div");
+      el.id = "sc_toast";
+      el.style.position = "fixed";
+      el.style.left = "50%";
+      el.style.transform = "translateX(-50%)";
+      el.style.bottom = "24px";
+      el.style.background = "linear-gradient(90deg,#8fe3c9,#6bd2b7)";
+      el.style.color = "#043b34";
+      el.style.padding = "8px 14px";
+      el.style.borderRadius = "999px";
+      el.style.boxShadow = "0 10px 30px rgba(0,0,0,0.12)";
+      el.style.fontWeight = "800";
+      el.style.zIndex = "9999";
+      el.style.transition = "opacity 0.25s ease";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = "1";
+    el.style.display = "block";
+    setTimeout(() => { el.style.opacity = "0"; }, timeout);
+    setTimeout(() => { el.style.display = "none"; }, timeout + 250);
+  }
+
+  function renderSummary(selected){
+    if (!selected || selected.length === 0){
+      summaryText.textContent =
+        'No products selected yet. Click "Preview Routine" to see a suggested routine.';
+      chips.innerHTML = "";
+      guidanceCard.style.display = "none";
+      return;
+    }
+
+    summaryText.textContent =
+      `You use ${selected.length} product${selected.length > 1 ? "s" : ""}:`;
+    chips.innerHTML = "";
+
+    selected.forEach(key => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = PRODUCT_INFO[key].name;
+      chips.appendChild(chip);
+    });
+
+    guidanceCard.style.display = "block";
+    renderGuidance(selected);
+  }
+
+  function renderGuidance(selected){
+    guidanceList.innerHTML = "";
+
+    selected.forEach((key, idx) => {
+      const info = PRODUCT_INFO[key];
+      if (!info) return;
+
+      const card = document.createElement("div");
+      card.className = "prod-card";
+      card.style.animationDelay = `${idx * 80}ms`;
+
+      const h = document.createElement("h4");
+      h.textContent = info.name;
+
+      const f = document.createElement("div");
+      f.className = "freq";
+      f.textContent = info.freq;
+
+      const w = document.createElement("div");
+      w.className = "usage";
+      w.textContent = info.why;
+
+      const when = document.createElement("div");
+      when.style.marginTop = "8px";
+      when.innerHTML = `<strong>When:</strong> ${info.when}`;
+
+      const steps = document.createElement("ol");
+      steps.className = "steps";
+      info.steps.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = s;
+        steps.appendChild(li);
+      });
+
+      card.appendChild(h);
+      card.appendChild(f);
+      card.appendChild(w);
+      card.appendChild(when);
+      card.appendChild(steps);
+      guidanceList.appendChild(card);
+    });
+
+    setTimeout(() => {
+      guidanceCard.scrollIntoView({ behavior:"smooth" });
+    }, 120);
+  }
+
+  // Load saved selection on page load
+  const saved = loadSelected();
+  if (saved && Array.isArray(saved)){
+    qAll('input[name="prod"]').forEach(inp => {
+      inp.checked = saved.includes(inp.value);
+    });
+    renderSummary(saved);
+  } else {
+    summaryText.textContent =
+      'No products selected yet. Click "Preview Routine" to see a suggested routine.';
+    guidanceCard.style.display = "none";
+  }
+
+  previewBtn.addEventListener("click", () => {
+    const selected = getSelectedProducts();
+    renderSummary(selected);
+    saveSelected(selected);
+  });
+
+  clearBtn.addEventListener("click", () => {
+    if (confirm("Clear selected products?")) clearSelection();
+  });
+
+  // Click a chip to unselect that product
+  chips.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("chip")) return;
+    const labelName = e.target.textContent;
+    const key = Object.keys(PRODUCT_INFO).find(
+      k => PRODUCT_INFO[k].name === labelName
+    );
+    if (!key) return;
+
+    const inp = document.querySelector(
+      `input[name="prod"][value="${key}"]`
+    );
+    if (inp) inp.checked = false;
+
+    const selected = getSelectedProducts();
+    saveSelected(selected);
+    renderSummary(selected);
+  });
+
+  productForm.addEventListener("keydown", (e) => {
+    if (e.key === "Enter"){
+      e.preventDefault();
+      previewBtn.click();
+    }
+  });
+
+  /* -------- HEADER DROPDOWN (same pattern as quiz.html) -------- */
+  
+  const logoutBtn    = document.getElementById("logoutBtn");
+
+  if (profileBtn && profileMenu){
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileMenu.classList.toggle("open");
+      profileMenu.setAttribute(
+        "aria-hidden",
+        profileMenu.classList.contains("open") ? "false" : "true"
+      );
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileMenu.contains(e.target) && e.target !== profileBtn){
+        profileMenu.classList.remove("open");
+        profileMenu.setAttribute("aria-hidden","true");
+      }
+    });
+  }
+
+
+
+  if (logoutBtn){
+    logoutBtn.addEventListener("click", () => {
+      try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+      window.location.href = "/";
+    });
+  }
+});
+</script>
+
+</body>
+</html>
