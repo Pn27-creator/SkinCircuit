@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkinCircuit — Product Recommendations</title>
+<style>
+  :root{
+    --header-green:#3d7b70;
+    --accent:#3f8f7f;
+    --accent-strong:#2f6b60;
+    --bg:#eaf7f1;
+    --card:#ffffff;
+    --muted:#556b66;
+    --text:#073b36;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(15,25,20,0.08);
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:linear-gradient(180deg,var(--bg),#e6f2ea 60%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  *{box-sizing:border-box}
+
+  header.site-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 20px;
+    background:var(--header-green);
+    color:white;
+    box-shadow:0 2px 0 rgba(0,0,0,0.06);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .left{display:flex;align-items:center;gap:12px}
+  img.logo{
+    width:46px;height:46px;object-fit:cover;border-radius:10px;
+    background:white;box-shadow:0 6px 18px rgba(0,0,0,0.12)
+  }
+  .brand{font-weight:800;font-size:20px;letter-spacing:0.2px}
+
+  main.container{max-width:980px;margin:28px auto;padding:18px}
+  .page-title{font-size:28px;margin:0 0 6px;color:#072e28;font-weight:900}
+  .subtitle{margin:0 0 18px;color:var(--muted)}
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  .muted{color:var(--muted);font-size:14px}
+
+  form.row{
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:920px){
+    form.row{grid-template-columns:1fr}
+  }
+
+  .section-title{font-weight:800;color:#06403a;margin-bottom:10px}
+
+  .field{margin-bottom:12px}
+  .radio-group, .checkbox-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .radio, .check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.06);
+    background:#fbfffb;
+    cursor:pointer;
+    font-weight:700;
+    color:#073b36;
+  }
+  .radio input, .check input{accent-color:var(--accent-strong)}
+  .check input[type="checkbox"]{width:18px;height:18px}
+
+  .actions{display:flex;gap:10px;margin-top:12px}
+  .btn{
+    background:var(--accent-strong);
+    color:white;
+    padding:10px 16px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+  }
+  .btn.ghost{
+    background:transparent;
+    border:1px dashed rgba(0,0,0,0.06);
+    color:var(--muted);
+    font-weight:700;
+  }
+  .small-note{font-size:13px;color:var(--muted);margin-top:8px}
+
+  .results .product-card{
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:12px;
+    border:1px solid rgba(7,59,54,0.04);
+    background:linear-gradient(180deg,#ffffff,#f7fffb);
+  }
+  .product-card h4{margin:0 0 8px}
+  .links-list{display:flex;flex-direction:column;gap:6px}
+  .links-list a{
+    padding:8px 10px;
+    border-radius:8px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,0.04);
+    text-decoration:none;
+    color:var(--accent-strong);
+    font-weight:800;
+  }
+  .empty{
+    color:var(--muted);
+    font-weight:700;
+    padding:24px;
+    text-align:center;
+    border-radius:10px;
+    background:linear-gradient(180deg,#fbfffb,#f7fffb);
+  }
+  .note-inline{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="left">
+      <img class="logo" src="/templates/logo.jpg" alt="SkinCircuit logo" onerror="this.style.display='none'">
+      <div class="brand">SkinCircuit</div>
+    </div>
+    <div style="font-weight:700">Product recommendations</div>
+  </header>
+
+  <main class="container" role="main">
+    <h1 class="page-title">What would you like to buy?</h1>
+    <p class="subtitle">
+      Select your skin type, pick products you want, then click
+      <strong>Show links</strong>.
+    </p>
+
+    <form id="productForm" class="row card" onsubmit="return false;">
+      <div>
+        <div class="field">
+          <div class="section-title">1. Select your skin type</div>
+          <div class="radio-group" role="radiogroup" aria-label="Skin type">
+            <label class="radio"><input type="radio" name="skinType" value="oily"> Oily skin</label>
+            <label class="radio"><input type="radio" name="skinType" value="dry"> Dry skin</label>
+            <label class="radio"><input type="radio" name="skinType" value="sensitive"> Sensitive skin</label>
+            <label class="radio"><input type="radio" name="skinType" value="combination"> Combination skin</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="section-title">2. Which products do you want to buy?</div>
+          <div class="checkbox-grid" role="group" aria-label="Products">
+            <label class="check"><input type="checkbox" name="products" value="cleanser"> Cleanser</label>
+            <label class="check"><input type="checkbox" name="products" value="toner"> Toner</label>
+            <label class="check"><input type="checkbox" name="products" value="serum"> Serum</label>
+            <label class="check"><input type="checkbox" name="products" value="eyecream"> Eye cream</label>
+            <label class="check"><input type="checkbox" name="products" value="moisturizer"> Moisturizer</label>
+            <label class="check"><input type="checkbox" name="products" value="sunscreen"> Sunscreen</label>
+            <label class="check"><input type="checkbox" name="products" value="scrub"> Scrub</label>
+            <label class="check"><input type="checkbox" name="products" value="facemask"> Face mask</label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="showLinksBtn" class="btn" type="button">Show links</button>
+          <button id="clearBtn" class="btn ghost" type="button">Clear</button>
+        </div>
+
+        <div class="small-note">
+          Links are for Indian store product pages. Update them in the backend if you want.
+        </div>
+      </div>
+    </form>
+
+    <div id="resultsArea" class="card results">
+      <div class="section-title">Recommended shopping links</div>
+      <div id="resultsInner">
+        <div class="empty">
+          Select products and click <strong>Show links</strong> to see recommendations.
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const showBtn = document.getElementById('showLinksBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const resultsInner = document.getElementById('resultsInner');
+
+  function getSelectedSkinType(){
+    const el = document.querySelector('input[name="skinType"]:checked');
+    return el ? el.value : null;
+  }
+
+  function getSelectedProducts(){
+    return Array.from(
+      document.querySelectorAll('input[name="products"]:checked')
+    ).map(i => i.value);
+  }
+
+  function clearResults(){
+    resultsInner.innerHTML =
+      '<div class="empty">Select products and click <strong>Show links</strong> to see recommendations.</div>';
+  }
+
+  function renderResults(data){
+    const { skinType, linksByProduct } = data;
+    resultsInner.innerHTML = '';
+
+    const labelMap = {
+      cleanser:'Cleanser',
+      toner:'Toner',
+      serum:'Serum',
+      eyecream:'Eye cream',
+      moisturizer:'Moisturizer',
+      sunscreen:'Sunscreen',
+      scrub:'Scrub',
+      facemask:'Face mask'
+    };
+
+    Object.keys(linksByProduct).forEach(key => {
+      const items = linksByProduct[key] || [];
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      const h = document.createElement('h4');
+      h.textContent = labelMap[key] || key;
+      card.appendChild(h);
+
+      const list = document.createElement('div');
+      list.className = 'links-list';
+
+      if(!items.length){
+        const p = document.createElement('div');
+        p.className = 'note-inline';
+        p.textContent =
+          'No links configured yet for this product. Update PRODUCT_LINKS in server.js.';
+        card.appendChild(p);
+      } else {
+        items.forEach(item => {
+          const a = document.createElement('a');
+          a.href = item.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.textContent = item.label;
+          list.appendChild(a);
+        });
+      }
+
+      card.appendChild(list);
+      resultsInner.appendChild(card);
+    });
+
+    const note = document.createElement('div');
+    note.className = 'small-note';
+    note.style.marginTop = '6px';
+    note.textContent =
+      'Skin type: ' + skinType + '. Links open in a new tab.';
+    resultsInner.appendChild(note);
+  }
+
+  showBtn.addEventListener('click', () => {
+    const skinType = getSelectedSkinType();
+    const products = getSelectedProducts();
+
+    if(!skinType){
+      resultsInner.innerHTML =
+        '<div class="empty">Please select your skin type first.</div>';
+      return;
+    }
+    if(!products.length){
+      resultsInner.innerHTML =
+        '<div class="empty">Please select at least one product.</div>';
+      return;
+    }
+
+    fetch('/api/products/recommend', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ skinType, products })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.error){
+        resultsInner.innerHTML =
+          '<div class="empty">Backend error: '+ data.error +'</div>';
+      } else {
+        renderResults(data);
+      }
+    })
+    .catch(err => {
+      console.error('Products API error', err);
+      resultsInner.innerHTML =
+        '<div class="empty">Could not reach the server. Is backend running?</div>';
+    });
+  });
+
+  clearBtn.addEventListener('click', () => {
+    document.querySelectorAll('input[name="skinType"]').forEach(i => i.checked = false);
+    document.querySelectorAll('input[name="products"]').forEach(i => i.checked = false);
+    clearResults();
+  });
+
+  clearResults();
+});
+</script>
+</body>
+</html>
