@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkinCircuit — Chatbot</title>
+<style>
+  :root{
+    --header-green:#3d7b70;
+    --accent:#3f8f7f;
+    --accent-strong:#2f6b60;
+    --bg:#eaf7f1;
+    --card:#ffffff;
+    --muted:#556b66;
+    --text:#073b36;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(15,25,20,0.08);
+    --soft-shadow:0 6px 20px rgba(15,25,20,0.06);
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:linear-gradient(180deg,var(--bg),#e6f2ea 60%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  *{box-sizing:border-box}
+
+  /* Header */
+  header.site-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 20px;
+    background:var(--header-green);
+    color:white;
+    box-shadow:0 2px 0 rgba(0,0,0,0.06);
+    position:sticky;
+    top:0;
+    z-index:120;
+  }
+  .left{display:flex;align-items:center;gap:12px}
+  img.logo{
+    width:46px;
+    height:46px;
+    object-fit:cover;
+    border-radius:10px;
+    background:white;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  }
+  .brand{font-weight:800;font-size:20px;letter-spacing:0.2px}
+
+  /* Page layout */
+  main.container{max-width:980px;margin:28px auto;padding:18px}
+  h1.page-title{margin:0 0 8px;font-size:26px;color:#072e28;font-weight:800}
+  p.lead{margin:0 0 20px;color:var(--muted)}
+
+  /* Chat layout */
+  .chat-wrap{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:980px){
+    .chat-wrap{grid-template-columns:1fr}
+  }
+
+  /* Cards */
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+
+  /* Left panel (bot info) */
+  .bot-info{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    text-align:center;
+  }
+  .bot-avatar{
+    width:120px;
+    height:120px;
+    border-radius:18px;
+    background:#f7fffb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:var(--soft-shadow);
+  }
+  .bot-avatar img{
+    width:86px;
+    height:86px;
+    object-fit:contain;
+  }
+  .bot-title{font-weight:900;color:#072e28}
+  .bot-sub{color:var(--muted);font-size:13px}
+
+  .quick-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  .chip{
+    background:#f0fff8;
+    border-radius:999px;
+    padding:8px 12px;
+    border:1px solid rgba(10,10,10,0.03);
+    font-weight:700;
+    color:var(--accent-strong);
+    cursor:pointer;
+  }
+
+  /* Right panel (chat area) */
+  .chat-card{
+    display:flex;
+    flex-direction:column;
+    height:640px;
+    border-radius:14px;
+    overflow:hidden;
+    padding:0;        /* override .card padding for full bleed */
+  }
+  .chat-card-inner{
+    display:flex;
+    flex-direction:column;
+    height:100%;
+  }
+  .messages{
+    flex:1;
+    padding:18px;
+    overflow:auto;
+    background:linear-gradient(180deg,#fbfffb,#f2fff7);
+  }
+  .msg{
+    max-width:72%;
+    margin-bottom:12px;
+    padding:10px 12px;
+    border-radius:12px;
+    box-shadow:0 8px 20px rgba(6,40,34,0.03);
+    font-size:14px;
+  }
+  .msg.user{
+    margin-left:auto;
+    background:linear-gradient(90deg,var(--accent-strong),#2b6b5e);
+    color:white;
+    border-bottom-right-radius:4px;
+  }
+  .msg.bot{
+    background:white;
+    color:var(--text);
+    border-bottom-left-radius:4px;
+  }
+  .msg .meta{
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .typing{
+    font-style:italic;
+    color:var(--muted);
+    padding:8px 12px;
+    border-radius:10px;
+    display:inline-block;
+  }
+
+  /* sources */
+  .sources{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:8px;
+    border-top:1px dashed rgba(0,0,0,0.04);
+    padding-top:8px;
+  }
+
+  /* composer */
+  .composer{
+    display:flex;
+    gap:10px;
+    padding:14px;
+    border-top:1px solid rgba(0,0,0,0.04);
+    background:#fff;
+  }
+  .input{
+    flex:1;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .input textarea{
+    width:100%;
+    resize:none;
+    border:1px solid rgba(0,0,0,0.06);
+    border-radius:10px;
+    padding:10px;
+    font-size:14px;
+    font-family:inherit;
+    min-height:44px;
+    max-height:140px;
+  }
+  .send-btn{
+    background:var(--accent-strong);
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    font-weight:800;
+    cursor:pointer;
+  }
+
+  /* small helpers */
+  .small{font-size:13px;color:var(--muted)}
+  button.chip:focus, button.send-btn:focus, textarea:focus {
+    outline: 3px solid rgba(63,143,127,0.12);
+    outline-offset:3px;
+  }
+
+  .empty{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    color:var(--muted);
+    font-weight:700;
+  }
+</style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="left">
+      <img class="logo" src="templates/logo.jpg" alt="SkinCircuit logo" onerror="this.style.display='none'">
+      <div class="brand">SkinCircuit</div>
+    </div>
+    <div style="color:white;font-weight:700">Chatbot</div>
+  </header>
+
+  <main class="container" role="main" aria-live="polite">
+    <h1 class="page-title">EVI — Your skincare assistant</h1>
+    <p class="lead">
+      Ask any skincare question. This demo bot works locally and can also call the backend for smarter replies.
+      It is not a substitute for medical advice.
+    </p>
+
+    <div class="chat-wrap">
+      <!-- left: bot info -->
+      <aside class="card bot-info" aria-label="Bot info">
+        <div class="bot-avatar">
+          <img src="templates/chatbot.jpg" alt="EVI avatar" id="botAvatar" onerror="this.style.display='none'">
+        </div>
+        <div class="bot-title">EVI</div>
+        <div class="bot-sub">Friendly skincare helper — routines, products &amp; tips</div>
+
+        <div style="width:100%;margin-top:10px">
+          <div class="small">Quick prompts</div>
+          <div class="quick-actions" id="quickActions">
+            <button class="chip" data-q="How often should I use a scrub?">How often to scrub?</button>
+            <button class="chip" data-q="Best cleanser for oily skin?">Cleanser for oily skin</button>
+            <button class="chip" data-q="What sunscreen should I use?">Sunscreen tips</button>
+            <button class="chip" data-q="I have acne, what to do?">Acne advice</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- right: chat -->
+      <section class="card chat-card" aria-label="Chat area">
+        <div class="chat-card-inner">
+          <div id="messages" class="messages" role="log" aria-live="polite" aria-atomic="false"></div>
+
+          <div class="composer" role="form" aria-label="Chat composer">
+            <div class="input">
+              <textarea id="userInput" placeholder="Type your question... (press Enter to send)" aria-label="Message input"></textarea>
+            </div>
+            <div>
+              <button id="sendBtn" class="send-btn" aria-label="Send message">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+<script>
+/*
+  Chatbot front-end:
+
+  - Tries POST /api/chat { q } and expects JSON { reply: string, sources?: [string] }.
+  - If backend fails, falls back to simple local rule-based answers.
+  - Chat history is stored in localStorage under key "sc_chat_v1".
+*/
+
+(function(){
+  const API_PATH = '/api/chat';
+  const STORAGE_KEY = 'sc_chat_v1';
+
+  const messagesEl   = document.getElementById('messages');
+  const inputEl      = document.getElementById('userInput');
+  const sendBtn      = document.getElementById('sendBtn');
+  const quickActions = document.getElementById('quickActions');
+
+  // --- local rule-based responses (fallback) ---
+  const RULES = [
+    {
+      match: /(cleanser|face wash)/i,
+      reply: "A gentle, non-stripping cleanser twice a day is enough. Use lukewarm water and pat your skin dry — avoid harsh soaps."
+    },
+    {
+      match: /(sunscreen|spf|sun)/i,
+      reply: "Use a broad-spectrum sunscreen SPF 30+ every morning, even indoors. Reapply every 2 hours if you’re outside or near windows."
+    },
+    {
+      match: /(acne|pimple|breakout)/i,
+      reply: "For acne, keep your routine simple: gentle cleanser, non-comedogenic moisturizer and sunscreen. Spot-treat with salicylic acid or benzoyl peroxide, and see a dermatologist for persistent or severe acne."
+    },
+    {
+      match: /(serum|vitamin c|retinol)/i,
+      reply: "Serums give concentrated actives. Vitamin C is usually used in the morning under sunscreen; retinol is typically used at night and introduced slowly (2–3x per week)."
+    },
+    {
+      match: /(dry skin|dryness|flaky|moisturizer|moisturiser)/i,
+      reply: "For dry skin, choose creamy cleansers and moisturizers with ceramides, glycerin or hyaluronic acid. Avoid hot water and strong foaming cleansers."
+    },
+    {
+      match: /(scrub|exfoli)/i,
+      reply: "Most people only need exfoliation 1–3 times per week. Over-exfoliating can damage your barrier and worsen acne or sensitivity."
+    },
+    {
+      match: /(hello|hi|hey|namaste)/i,
+      reply: "Hi, I’m EVI 👋 I can help with routines, product categories, and how often to use different skincare steps."
+    },
+    {
+        match:/(moisturizer|moisturiser)/i,
+        reply:"Squeeze the enough amount of moisturizer and use your fingers to spread it evenly.Gently massage your skin in a circular motion with your hands to make sure the cream is fully absorbed. When washing your face in the morning or removing your makeup at night, use gentle patting motions to prevent irritating your skin."
+    }
+  ];
+
+  // --- helpers ---
+  function el(tag, cls){
+    const d = document.createElement(tag);
+    if(cls) d.className = cls;
+    return d;
+  }
+  function formatTime(dt){
+    return dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"]/g, (c) => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;'
+    }[c] || c));
+  }
+
+  // storage
+  function saveChat(history){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }catch(e){}
+  }
+  function loadChat(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+
+  // render one message
+  function pushMessage(msgObj){
+    const { who = 'bot', text = '', meta = null, sources = [] } = msgObj;
+    const wrapper = el('div', 'msg ' + (who === 'user' ? 'user' : 'bot'));
+
+    if(meta){
+      const m = el('div','meta');
+      m.textContent = meta;
+      wrapper.appendChild(m);
+    }
+
+    const body = el('div');
+    const safe = escapeHtml(text).replace(/\n/g,'<br>');
+    body.innerHTML = safe;
+    wrapper.appendChild(body);
+
+    if(sources && sources.length){
+      const sDiv = el('div','sources');
+      const lines = sources.map(src => '- ' + escapeHtml(src)).join('<br>');
+      sDiv.innerHTML = '<strong>Sources:</strong><br>' + lines;
+      wrapper.appendChild(sDiv);
+    }
+
+    messagesEl.appendChild(wrapper);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // render history on page load
+  function renderHistory(){
+    messagesEl.innerHTML = '';
+    const history = loadChat();
+    if(history.length === 0){
+      const empty = el('div','empty');
+      empty.textContent = "Ask EVI something — type a question or tap a quick prompt.";
+      messagesEl.appendChild(empty);
+      return;
+    }
+    history.forEach(pushMessage);
+  }
+
+  // local fallback logic
+  function localReply(query){
+    for(const r of RULES){
+      if(r.match.test(query)) return { reply: r.reply, sources: [] };
+    }
+    return {
+      reply: "I’m not sure about that one yet. Try asking about cleansers, sunscreen, acne, scrubs, or how to build a simple routine. For medical concerns, please talk to a dermatologist.",
+      sources: []
+    };
+  }
+
+  // call backend, fallback to local
+  async function askServerOrLocal(q){
+    // typing indicator
+    const typingWrapper = el('div','msg bot');
+    typingWrapper.innerHTML = '<span class="typing">EVI is typing…</span>';
+    messagesEl.appendChild(typingWrapper);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    try{
+      const res = await fetch(API_PATH, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ q })
+      });
+      if(!res.ok) throw new Error('Server not OK');
+      const data = await res.json();
+      messagesEl.removeChild(typingWrapper);
+      return {
+        reply: data.reply || '(no reply)',
+        sources: Array.isArray(data.sources) ? data.sources : []
+      };
+    }catch(err){
+      messagesEl.removeChild(typingWrapper);
+      return localReply(q);
+    }
+  }
+
+  // send flow
+  async function sendMessage(rawText){
+    const text = String(rawText || '').trim();
+    if(!text) return;
+
+    // remove empty state if present
+    const empty = messagesEl.querySelector('.empty');
+    if(empty) empty.remove();
+
+    const now = new Date();
+
+    const userMsg = {
+      who: 'user',
+      text,
+      meta: formatTime(now),
+      ts: now.toISOString()
+    };
+    pushMessage(userMsg);
+
+    let history = loadChat();
+    history.push(userMsg);
+    saveChat(history);
+
+    let result;
+    try{
+      result = await askServerOrLocal(text);
+    }catch(e){
+      result = { reply: "Something went wrong. Please try again.", sources: [] };
+    }
+
+    const botMsg = {
+      who: 'bot',
+      text: result.reply || '',
+      meta: formatTime(new Date()),
+      sources: result.sources || [],
+      ts: new Date().toISOString()
+    };
+    pushMessage(botMsg);
+    history = loadChat();
+    history.push(botMsg);
+    saveChat(history);
+
+    inputEl.value = '';
+    inputEl.focus();
+  }
+
+  // wire send button
+  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+
+  // Enter to send (Shift+Enter = newline)
+  inputEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendMessage(inputEl.value);
+    }
+  });
+
+  // quick prompts
+  quickActions.addEventListener('click', (ev) => {
+    const btn = ev.target.closest('button[data-q]');
+    if(!btn) return;
+    sendMessage(btn.dataset.q);
+  });
+
+  // long-press avatar to clear chat (dev)
+  const botAvatar = document.getElementById('botAvatar');
+  let pressTimer = null;
+  if(botAvatar){
+    botAvatar.addEventListener('mousedown', () => {
+      pressTimer = setTimeout(() => {
+        if(confirm('Clear chat history on this device?')){
+          localStorage.removeItem(STORAGE_KEY);
+          renderHistory();
+        }
+      }, 800);
+    });
+    document.addEventListener('mouseup', () => {
+      if(pressTimer) clearTimeout(pressTimer);
+      pressTimer = null;
+    });
+  }
+
+  // expose helper for dev
+  window.sc_clearChat = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    renderHistory();
+  };
+
+  // initial
+  renderHistory();
+})();
+</script>
+</body>
+</html>
