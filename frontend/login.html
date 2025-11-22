@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkinCircuit — Login / Sign up</title>
+<style>
+  :root{
+    --header-green:#3d7b70;
+    --accent:#3f8f7f;
+    --accent-strong:#2f6b60;
+    --bg-light:#eaf7f1;
+    --card:#ffffff;
+    --muted:#556b66;
+    --text:#073b36;
+    --radius:16px;
+    --glass: rgba(255,255,255,0.88);
+    --cheer:#8fe3c9;
+    --accent-glow: rgba(63,143,127,0.12);
+  }
+
+  /* Base */
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:linear-gradient(180deg,var(--bg-light),#e6f2ea 60%);color:var(--text);-webkit-font-smoothing:antialiased}
+  *{box-sizing:border-box}
+  a{color:var(--accent-strong);text-decoration:none}
+
+  /* MAIN BACKGROUND ICONS (moved out of left panel) */
+  .bg-icons{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  .bg-icons .float-icon {
+    position:absolute;
+    width:64px; height:64px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:34px;
+    background:linear-gradient(180deg,#ffffff,#fbfffb);
+    border-radius:14px;
+    box-shadow:0 22px 48px rgba(47,107,96,0.05);
+    border:1px solid rgba(0,0,0,0.03);
+    color:var(--accent-strong);
+    opacity:0.95;
+    transform-origin:center;
+  }
+  /* positions (responsive-safe percentages) */
+  .bg-1{ left:6%; top:12%; animation:floatSlow 7s ease-in-out infinite; }
+  .bg-2{ left:22%; top:62%; animation:float 8s ease-in-out .2s infinite; }
+  .bg-3{ right:10%; top:18%; animation:float 6.5s ease-in-out .4s infinite; }
+  .bg-4{ right:8%; bottom:18%; animation:floatSlow 9s ease-in-out .6s infinite; }
+  .bg-5{ left:48%; top:36%; animation:float 10s ease-in-out .3s infinite; }
+  .bg-6{
+  left:6%;
+  bottom:12%;
+  animation:floatSlow 8.5s ease-in-out .5s infinite;
+}
+
+
+  @keyframes float {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-14px) rotate(-6deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+  @keyframes floatSlow {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-22px) rotate(6deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  /* layout */
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;position:relative;z-index:1}
+  .card-shell{display:grid;grid-template-columns:420px 540px;gap:32px;align-items:stretch;max-width:1100px;width:100%}
+  @media (max-width:980px){ .card-shell{grid-template-columns:1fr;max-width:640px;padding:12px} }
+
+  /* left decorative panel */
+  .left-panel{
+    border-radius:var(--radius);
+    background: linear-gradient(180deg, rgba(63,143,127,0.05), #ffffff);
+    padding:28px; box-shadow:0 20px 60px rgba(8,24,20,0.06); position:relative; overflow:hidden;
+    display:flex;flex-direction:column;gap:18px;align-items:flex-start;justify-content:center;
+  }
+  .logo-row{display:flex;align-items:center;gap:12px}
+  .logo-row img.logo{width:56px;height:56px;object-fit:cover;border-radius:12px;background:white;box-shadow:0 8px 22px rgba(0,0,0,0.08)}
+  .brand{font-weight:900;font-size:20px;color:var(--text)}
+  .left-panel h1{margin:6px 0 0;font-size:22px;color:#06403a}
+  .left-panel p.lead{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+
+  /* motif: leaves & blossoms */
+  .leaf { position:absolute; width:160px; height:160px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e7fff6 40%, #c9faeb 80%); opacity:0.9; filter: blur(4px); }
+  .leaf.l1{ left:-40px; top:-30px; transform:rotate(-12deg); animation: driftA 8s ease-in-out infinite; }
+  .leaf.l2{ right:-60px; bottom:-50px; width:220px; height:220px; transform:rotate(18deg); animation: driftB 9s ease-in-out infinite; opacity:0.95;}
+  @keyframes driftA { 0%{ transform:translateY(0) rotate(-12deg);} 50%{ transform:translateY(-12px) rotate(-6deg);} 100%{ transform:translateY(0) rotate(-12deg);} }
+  @keyframes driftB { 0%{ transform:translateY(0) rotate(18deg);} 50%{ transform:translateY(10px) rotate(12deg);} 100%{ transform:translateY(0) rotate(18deg);} }
+
+  /* small blossom petals */
+  .petal{ position:absolute; width:18px; height:10px; background:linear-gradient(90deg,#fff,#f0fff8); border-radius:8px; opacity:0.95; transform-origin:center; }
+  .petal.p1{ left:60px; top:48px; transform: rotate(18deg); animation:petalFloat 6s linear infinite; }
+  .petal.p2{ left:22px; top:88px; transform: rotate(-30deg); animation:petalFloat 7s linear .2s infinite; }
+  .petal.p3{ right:36px; bottom:40px; transform: rotate(45deg); animation:petalFloat 8s linear .6s infinite; }
+  @keyframes petalFloat { 0%{transform:translateY(0) rotate(0);} 50%{transform:translateY(-10px) rotate(10deg);} 100%{transform:translateY(0) rotate(0);} }
+
+  /* right form panel */
+  .form-panel{border-radius:var(--radius);background:linear-gradient(180deg, white, #fbfffb);padding:26px;box-shadow:0 30px 80px rgba(8,24,20,0.06);position:relative;overflow:hidden}
+  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tab{padding:8px 14px;border-radius:10px;background:transparent;border:1px solid rgba(0,0,0,0.04);font-weight:800;color:var(--muted);cursor:pointer}
+  .tab.active{background:linear-gradient(90deg,var(--accent-strong),#2f6b60);color:white;box-shadow:0 8px 20px rgba(47,107,96,0.08)}
+
+  /* card switcher */
+  .forms{position:relative;height:480px}
+  .pane{position:absolute;inset:0;transition:transform .48s cubic-bezier(.2,.9,.3,1),opacity .36s;display:flex;flex-direction:column;padding:6px 0}
+  .pane.hidden{transform: translateX(30px); opacity:0.01; pointer-events:none}
+  .pane.visible{transform: translateX(0); opacity:1; pointer-events:auto}
+
+  .form-card{background:var(--card);border-radius:12px;padding:18px;border:1px solid rgba(7,59,54,0.03);box-shadow:0 8px 30px rgba(10,30,26,0.04);display:flex;flex-direction:column;gap:12px}
+  label{font-weight:700;color:#075e53;font-size:13px}
+  input[type="text"], input[type="email"], input[type="password"]{
+    width:100%;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);font-size:14px;background:linear-gradient(180deg,#fff,#fbfffb)
+  }
+  .row{display:flex;gap:10px}
+  .muted{font-size:13px;color:var(--muted)}
+  .form-actions{display:flex;gap:10px;align-items:center;margin-top:8px}
+  .btn{background:var(--accent-strong);color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:900}
+  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--accent-strong);font-weight:800}
+
+  .help-text{font-size:13px;color:var(--muted);margin-top:6px}
+
+  /* password rules */
+  .pw-rules{display:flex;flex-direction:column;gap:6px}
+  .rule{display:flex;gap:8px;align-items:center;color:var(--muted);font-weight:700}
+  .rule.ok{color:var(--accent-strong)}
+  .rule .dot{width:12px;height:12px;border-radius:50%;background:rgba(0,0,0,0.06)}
+
+  /* show/hide password */
+  .pw-wrap{position:relative}
+  .pw-toggle{position:absolute;right:10px;top:10px;border:none;background:transparent;cursor:pointer;font-weight:700;color:var(--muted)}
+
+  .success-badge{display:inline-block;padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,#8fe3c9,#6bd2b7);color:#043b34;font-weight:900}
+
+  /* tiny encouraging animation for submit success */
+  .confetti {
+    position:absolute; pointer-events:none; inset:0; opacity:0; transition:opacity .3s;
+  }
+  .confetti.show{ opacity:1; }
+  .confetti span{ position:absolute; font-size:14px; transform:translateY(-10px); animation:confettiDrop 900ms linear forwards; opacity:0.95; }
+  @keyframes confettiDrop {
+    0%{ transform: translateY(-10px) rotate(0deg); opacity:1;}
+    100%{ transform: translateY(90px) rotate(360deg); opacity:0; }
+  }
+
+  /* saved draft badge */
+  .draft-badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff6e6;color:#8a5b12;font-weight:800;border:1px solid rgba(0,0,0,0.04);}
+
+  /* accessibility focus */
+  input:focus, button:focus { outline: 3px solid var(--accent-glow); outline-offset:2px; }
+
+  /* responsive tweaks */
+  @media (max-width:480px){
+    .bg-icons .float-icon{ display:none }
+    .leaf{ display:none }
+    .petal{ display:none }
+  }
+</style>
+</head>
+<body>
+  <!-- background icons container (now behind everything) -->
+  <div class="bg-icons" aria-hidden="true">
+    <div class="float-icon bg-1">🧴</div>
+    <div class="float-icon bg-2">💧</div>
+    <div class="float-icon bg-3">☀</div>
+    <div class="float-icon bg-4">🌿</div>
+    <div class="float-icon bg-5">✨</div>
+    <div class="float-icon bg-6">🧼</div>
+  </div>
+
+  <div class="wrap">
+    <div class="card-shell" role="main" aria-labelledby="authTitle">
+      <!-- LEFT: decorative -->
+      <aside class="left-panel" aria-hidden="false">
+        <div class="logo-row">
+          <!-- Use the local path you provided; your toolchain will transform into a URL -->
+          <img class="logo" src="\templates\logo.jpg" alt="SkinCircuit logo" onerror="this.style.display='none'">
+          <div>
+            <div class="brand">SkinCircuit</div>
+            <div style="font-size:12px;color:var(--muted)">Skincare routines, reminders & shopping — gentle & consistent.</div>
+          </div>
+        </div>
+
+        <h1 id="authTitle">Welcome to SkinCircuit</h1>
+        <p class="lead">Create a free account to save your skin quiz, reminders, favorites and chat history with EVI. Small routines, big glow ✨</p>
+
+        <div style="margin-top:8px">
+          <div class="muted">Why join?</div>
+          <ul style="margin:8px 0 0 18px;color:var(--muted)">
+            <li>Save personalized routines & reminders</li>
+            <li>Get product links tailored to your skin</li>
+            <li>Chat with EVI and store your notes</li>
+          </ul>
+        </div>
+
+        <!-- Decorative animated shapes (leaves & petals) -->
+        <div class="leaf l1" aria-hidden="true"></div>
+        <div class="leaf l2" aria-hidden="true"></div>
+        <div class="petal p1" aria-hidden="true"></div>
+        <div class="petal p2" aria-hidden="true"></div>
+        <div class="petal p3" aria-hidden="true"></div>
+      </aside>
+
+      <!-- RIGHT: forms -->
+      <section class="form-panel" aria-label="Authentication panel">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(6,30,26,0.06)">
+              <!-- local path for chatbot image -->
+              <img src="\templates\chatbot.png" alt="EVI" style="width:36px;height:36px;object-fit:contain" onerror="this.style.display='none'">
+            </div>
+            <div style="font-weight:900;color:#06403a">Sign in or create account</div>
+          </div>
+
+          <div style="font-size:14px;color:var(--muted)" id="topRightStatus">Your data stays on-device (demo)</div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Auth tabs">
+          <button class="tab active" id="tabLogin" role="tab" aria-selected="true">Login</button>
+          <button class="tab" id="tabSignup" role="tab" aria-selected="false">Sign up</button>
+        </div>
+
+        <div class="forms" id="forms">
+          <!-- LOGIN PANE -->
+          <div class="pane visible" id="loginPane" role="tabpanel" aria-hidden="false">
+            <div class="form-card" aria-labelledby="tabLogin">
+              <div>
+                <label for="loginEmail">Email</label>
+                <input id="loginEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
+              </div>
+
+              <div>
+                <label for="loginPassword">Password</label>
+                <div class="pw-wrap">
+                  <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password" required>
+                  <button class="pw-toggle" type="button" id="loginToggle" aria-label="Toggle password visibility">Show</button>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button id="loginBtn" class="btn">Login</button>
+                <button id="demoBtn" class="btn ghost" title="Try demo account">Try demo</button>
+                <div style="margin-left:auto" class="muted">Forgot password? (demo)</div>
+              </div>
+
+              <div id="loginMsg" class="help-text muted" role="status" aria-live="polite"></div>
+            </div>
+          </div>
+
+          <!-- SIGNUP PANE -->
+          <div class="pane hidden" id="signupPane" role="tabpanel" aria-hidden="true">
+            <div class="form-card" aria-labelledby="tabSignup">
+              <div>
+                <label for="signupName">Full name</label>
+                <input id="signupName" type="text" autocomplete="name" placeholder="Your name">
+              </div>
+
+              <div>
+                <label for="signupEmail">Email</label>
+                <input id="signupEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com">
+              </div>
+
+              <div>
+                <label for="signupPassword">Create password</label>
+                <div class="pw-wrap">
+                  <input id="signupPassword" type="password" autocomplete="new-password" placeholder="Choose a strong password">
+                  <button class="pw-toggle" type="button" id="signupToggle" aria-label="Toggle password visibility">Show</button>
+                </div>
+                <div class="help-text muted">Password must be >5 chars and include uppercase, lowercase, number & symbol.</div>
+              </div>
+
+              <div class="pw-rules" id="pwRules" aria-hidden="false">
+                <div class="rule" id="ruleLen"><span class="dot"></span> At least 6 characters</div>
+                <div class="rule" id="ruleUpper"><span class="dot"></span> Uppercase letter (A-Z)</div>
+                <div class="rule" id="ruleLower"><span class="dot"></span> Lowercase letter (a-z)</div>
+                <div class="rule" id="ruleNum"><span class="dot"></span> A number (0-9)</div>
+                <div class="rule" id="ruleSym"><span class="dot"></span> A symbol (e.g. !@#$%)</div>
+              </div>
+
+              <div class="form-actions">
+                <button id="saveSignupBtn" class="btn ghost" title="Save draft">Save</button>
+                <button id="signupBtn" class="btn">Create account</button>
+                <button id="clearSignup" class="btn ghost">Clear</button>
+                <div style="margin-left:auto" class="muted">We’ll never share your info.</div>
+              </div>
+
+              <div id="signupMsg" class="help-text muted" role="status" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- confetti / tiny celebration after signup -->
+        <div class="confetti" id="confetti" aria-hidden="true"></div>
+      </section>
+    </div>
+  </div>
+
+<script>
+/* Updated Auth page script
+   - Floating icons moved into background container
+   - Added Save (draft) button on signup: saves name/email/password as a draft in localStorage
+   - Create account still signs up and shows confetti + switches to login
+   - All other behavior preserved
+*/
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Tab elements
+  const tabLogin = document.getElementById('tabLogin');
+  const tabSignup = document.getElementById('tabSignup');
+  const loginPane = document.getElementById('loginPane');
+  const signupPane = document.getElementById('signupPane');
+
+  // Login fields
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginToggle = document.getElementById('loginToggle');
+  const loginBtn = document.getElementById('loginBtn');
+  const demoBtn = document.getElementById('demoBtn');
+  const loginMsg = document.getElementById('loginMsg');
+
+  // Signup fields
+  const signupName = document.getElementById('signupName');
+  const signupEmail = document.getElementById('signupEmail');
+  const signupPassword = document.getElementById('signupPassword');
+  const signupToggle = document.getElementById('signupToggle');
+  const signupBtn = document.getElementById('signupBtn');
+  const saveSignupBtn = document.getElementById('saveSignupBtn');
+  const clearSignup = document.getElementById('clearSignup');
+  const signupMsg = document.getElementById('signupMsg');
+
+  // Password rules
+  const ruleLen = document.getElementById('ruleLen');
+  const ruleUpper = document.getElementById('ruleUpper');
+  const ruleLower = document.getElementById('ruleLower');
+  const ruleNum = document.getElementById('ruleNum');
+  const ruleSym = document.getElementById('ruleSym');
+
+  // confetti container
+  const confetti = document.getElementById('confetti');
+
+  // top-right status
+  const topRightStatus = document.getElementById('topRightStatus');
+
+  // localStorage keys
+  const USERS_KEY = 'sc_demo_users_v1';
+  const SIGNUP_DRAFT_KEY = 'sc_signup_draft_v1';
+
+  // helpers
+  function swapTo(tab){
+    if(tab === 'login'){
+      tabLogin.classList.add('active'); tabLogin.setAttribute('aria-selected','true');
+      tabSignup.classList.remove('active'); tabSignup.setAttribute('aria-selected','false');
+      loginPane.classList.remove('hidden'); loginPane.classList.add('visible'); loginPane.setAttribute('aria-hidden','false');
+      signupPane.classList.remove('visible'); signupPane.classList.add('hidden'); signupPane.setAttribute('aria-hidden','true');
+    } else {
+      tabSignup.classList.add('active'); tabSignup.setAttribute('aria-selected','true');
+      tabLogin.classList.remove('active'); tabLogin.setAttribute('aria-selected','false');
+      signupPane.classList.remove('hidden'); signupPane.classList.add('visible'); signupPane.setAttribute('aria-hidden','false');
+      loginPane.classList.remove('visible'); loginPane.classList.add('hidden'); loginPane.setAttribute('aria-hidden','true');
+      // when switching to signup, try to load any draft
+      loadDraftToForm();
+    }
+  }
+
+  tabLogin.addEventListener('click', () => swapTo('login'));
+  tabSignup.addEventListener('click', () => swapTo('signup'));
+
+  // toggle password visibility
+  loginToggle.addEventListener('click', () => {
+    if(loginPassword.type === 'password'){ loginPassword.type = 'text'; loginToggle.textContent = 'Hide'; }
+    else { loginPassword.type = 'password'; loginToggle.textContent = 'Show'; }
+  });
+  signupToggle.addEventListener('click', () => {
+    if(signupPassword.type === 'password'){ signupPassword.type = 'text'; signupToggle.textContent = 'Hide'; }
+    else { signupPassword.type = 'password'; signupToggle.textContent = 'Show'; }
+  });
+
+  // validation helpers
+  function hasUpper(s){ return /[A-Z]/.test(s); }
+  function hasLower(s){ return /[a-z]/.test(s); }
+  function hasNumber(s){ return /[0-9]/.test(s); }
+  function hasSymbol(s){ return /[^A-Za-z0-9]/.test(s); }
+
+  function updateRuleUI(el, ok){
+    if(ok){ el.classList.add('ok'); el.querySelector('.dot').style.background = 'var(--accent-strong)'; }
+    else { el.classList.remove('ok'); el.querySelector('.dot').style.background = 'rgba(0,0,0,0.06)'; }
+  }
+
+  // realtime password rule checks
+  signupPassword.addEventListener('input', () => {
+    const s = signupPassword.value || '';
+    updateRuleUI(ruleLen, s.length >= 6);
+    updateRuleUI(ruleUpper, hasUpper(s));
+    updateRuleUI(ruleLower, hasLower(s));
+    updateRuleUI(ruleNum, hasNumber(s));
+    updateRuleUI(ruleSym, hasSymbol(s));
+  });
+
+  // simple storage helpers
+  function loadUsers(){
+    try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : []; } catch(e){ return []; }
+  }
+  function saveUsers(list){
+    try { localStorage.setItem(USERS_KEY, JSON.stringify(list)); } catch(e){}
+  }
+
+  // create a demo account if none exists
+  (function ensureDemo(){
+    const users = loadUsers();
+    if(users.length === 0){
+      users.push({ name: "Demo User", email: "demo@skincircuit.app", password: "Demo@123" });
+      saveUsers(users);
+    }
+  })();
+
+  // DRAFT save/load functions
+  function saveDraft(){
+    const draft = {
+      name: (signupName.value || '').trim(),
+      email: (signupEmail.value || '').trim(),
+      password: signupPassword.value || ''
+    };
+    try { localStorage.setItem(SIGNUP_DRAFT_KEY, JSON.stringify(draft)); }
+    catch(e){ console.warn('draft save failed', e); }
+    signupMsg.innerHTML = '<span class="draft-badge">Saved (draft)</span>';
+    setTimeout(()=> { signupMsg.textContent = ''; }, 1600);
+  }
+
+  function loadDraftToForm(){
+    try {
+      const raw = localStorage.getItem(SIGNUP_DRAFT_KEY);
+      if(!raw) return;
+      const d = JSON.parse(raw);
+      if(d.name) signupName.value = d.name;
+      if(d.email) signupEmail.value = d.email;
+      if(d.password) signupPassword.value = d.password;
+      // trigger rule check visually
+      const ev = new Event('input', { bubbles: true });
+      signupPassword.dispatchEvent(ev);
+      signupMsg.innerHTML = '<span class="muted">Loaded saved draft</span>';
+      setTimeout(()=> { signupMsg.textContent = ''; }, 900);
+    } catch(e){ console.warn('draft load failed', e); }
+  }
+
+  // confetti micro-animation
+  function showConfetti(){
+    confetti.innerHTML = '';
+    const icons = ['✨','💚','🌿','✨','✨','💧','🧴'];
+    const colors = ['#8fe3c9','#6bd2b7','#ffd6e0','#fff4b8','#c9f0e6'];
+    for(let i=0;i<18;i++){
+      const s = document.createElement('span');
+      s.textContent = icons[i % icons.length];
+      s.style.left = (10 + Math.random()*80) + '%';
+      s.style.top = (10 + Math.random()*60) + '%';
+      s.style.fontSize = (12 + Math.random()*18) + 'px';
+      s.style.color = colors[i % colors.length];
+      confetti.appendChild(s);
+    }
+    confetti.classList.add('show');
+    setTimeout(()=>{ confetti.classList.remove('show'); confetti.innerHTML = ''; }, 1300);
+  }
+
+  // signup flow (Create account)
+  signupBtn.addEventListener('click', () => {
+    signupMsg.textContent = '';
+    const name = (signupName.value || '').trim();
+    const email = (signupEmail.value || '').trim();
+    const pw = signupPassword.value || '';
+
+    if(!name){ signupMsg.textContent = 'Please enter your name.'; return; }
+    if(!email || !/^\S+@\S+\.\S+$/.test(email)){ signupMsg.textContent = 'Please enter a valid email address.'; return; }
+
+    const okLen = pw.length >= 6, okU = hasUpper(pw), okL = hasLower(pw), okN = hasNumber(pw), okS = hasSymbol(pw);
+    if(!(okLen && okU && okL && okN && okS)){ signupMsg.textContent = 'Password does not meet the requirements.'; return; }
+
+    // store user
+    const users = loadUsers();
+    if(users.some(u => u.email.toLowerCase() === email.toLowerCase())){
+      signupMsg.textContent = 'An account with this email already exists. Please login or use a different email.';
+      return;
+    }
+    users.push({ name, email, password: pw });
+    saveUsers(users);
+
+    // remove draft if any
+    try { localStorage.removeItem(SIGNUP_DRAFT_KEY); } catch(e){}
+
+    // success micro-interaction
+    signupMsg.innerHTML = '<span class="success-badge">Account created ✓</span> &nbsp;You can now login.';
+    showConfetti();
+
+    // clear form
+    signupName.value = ''; signupEmail.value = ''; signupPassword.value = '';
+    updateRuleUI(ruleLen,false); updateRuleUI(ruleUpper,false); updateRuleUI(ruleLower,false); updateRuleUI(ruleNum,false); updateRuleUI(ruleSym,false);
+
+    setTimeout(()=>{ swapTo('login'); }, 900);
+  });
+
+  // Save draft (new Save button)
+  saveSignupBtn.addEventListener('click', () => {
+    // simple validations for draft
+    const name = (signupName.value || '').trim();
+    const email = (signupEmail.value || '').trim();
+    const pw = signupPassword.value || '';
+    if(!name && !email && !pw){
+      signupMsg.textContent = 'Nothing to save yet.';
+      setTimeout(()=> signupMsg.textContent = '', 1400);
+      return;
+    }
+    saveDraft();
+  });
+
+  clearSignup.addEventListener('click', () => {
+    signupName.value = ''; signupEmail.value = ''; signupPassword.value = '';
+    signupMsg.textContent = '';
+    updateRuleUI(ruleLen,false); updateRuleUI(ruleUpper,false); updateRuleUI(ruleLower,false);
+    updateRuleUI(ruleNum,false); updateRuleUI(ruleSym,false);
+  });
+
+  // login flow 
+  loginBtn.addEventListener("click", () => {
+  loginMsg.textContent = "";
+
+  const email = (loginEmail.value || "").trim();
+  const pw = loginPassword.value || "";
+
+  if (!email || !pw) {
+    loginMsg.textContent = "Please enter both email and password.";
+    return;
+  }
+
+  fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: pw })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.ok) {
+        loginMsg.textContent = data.message || "Login failed.";
+        return;
+      }
+      loginMsg.textContent = "Login successful. Redirecting...";
+      setTimeout(() => {
+        window.location.href = "/";   // go to homepage, now allowed
+      }, 800);
+    }) 
+    
+    .catch(err => {
+      console.error(err);
+      loginMsg.textContent = "Server error. Please try again.";
+    });
+}); 
+    
+
+
+  loginBtn.addEventListener('click', () => {
+    loginMsg.textContent = '';
+    const email = (loginEmail.value || '').trim();
+    const pw = loginPassword.value || '';
+
+    if(!email || !pw){ loginMsg.textContent = 'Please enter both email and password.'; return; }
+    const users = loadUsers();
+    const match = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pw);
+    if(!match){
+      loginMsg.textContent = 'Invalid credentials. Try demo or sign up.';
+      return;
+    }
+    try { localStorage.setItem('sc_session_user', JSON.stringify({ name: match.name, email: match.email })); } catch(e){}
+    loginMsg.innerHTML = '<span class="success-badge">Welcome back</span> &nbsp;You are logged in (demo).';
+    topRightStatus.textContent = `Hello, ${match.name.split(' ')[0]}`; 
+    setTimeout(() => {
+  window.location.href = "/home";
+}, 800);
+
+    // optionally redirect to dashboard in your app
+  });
+
+  // try demo account quick action
+  demoBtn.addEventListener('click', () => {
+    loginEmail.value = 'demo@skincircuit.app';
+    loginPassword.value = 'Demo@123';
+    loginBtn.click();
+  });
+
+  // keyboard: pressing Enter triggers appropriate action
+  document.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        if(!signupPane.classList.contains('hidden')) signupBtn.click();
+        else loginBtn.click();
+        e.preventDefault();
+      }
+    });
+  });
+
+  // initial UI state
+  swapTo('login');
+
+  // small floating icons subtle click interaction (makes them pulse)
+  document.querySelectorAll('.bg-icons .float-icon').forEach(el => {
+    el.addEventListener('mouseenter', () => { el.style.transform += ' scale(1.06)'; });
+    el.addEventListener('mouseleave', () => { el.style.transform = el.style.transform.replace(' scale(1.06)',''); });
+    // click gives small visual feedback
+    el.addEventListener('click', () => {
+      el.style.boxShadow = '0 28px 64px rgba(63,143,127,0.12)';
+      setTimeout(()=> el.style.boxShadow = '0 22px 48px rgba(47,107,96,0.05)', 300);
+    });
+  });
+
+});
+</script>
+</body>
+</html>
